@@ -834,9 +834,9 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     var e=el(id);
     e.addEventListener("focus",function(){ setTimeout(function(){ e.select(); },0); });
     e.addEventListener("input",function(){
+      // 숫자만 허용. 칸 이동은 엔터/탭으로만 (자동 이동을 넣으면 엔터가 한 칸을 건너뛴다)
       var v=e.value.replace(/[^0-9]/g,"").slice(0,len);
       if(v!==e.value) e.value=v;
-      if(v.length>=len && nextId){ el(nextId).focus(); }
     });
     e.addEventListener("keydown",function(ev){
       if(ev.key==="Enter"){
