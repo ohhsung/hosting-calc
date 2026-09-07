@@ -54,8 +54,9 @@ input:not([type=checkbox]),select{font-family:var(--sans);font-size:16px;color:v
   border:1px solid var(--line);padding:11px 13px;width:100%;border-radius:0;appearance:none}
 input.money{font-family:var(--mono);font-size:16px;font-weight:600;text-align:right;
             padding:10px 30px 10px 10px;font-variant-numeric:tabular-nums;color:var(--ink)}
-input.small{font-size:14px;padding:9px 11px;background:transparent;border-color:transparent;color:var(--ink)}
-input.small:hover{border-color:var(--line);background:var(--soft)}
+input.small{font-size:14px;padding:9px 11px;background:var(--soft);border-color:var(--line-2);color:var(--ink)}
+input.small:hover{border-color:var(--line)}
+input.small::placeholder{color:var(--ink-3)}
 input[type=date]{font-family:var(--mono);font-size:15px}
 select{cursor:pointer;font-weight:500}
 input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -88,8 +89,10 @@ input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visi
      line-height:1.05;font-variant-numeric:tabular-nums;word-break:keep-all}
 .big span{font-size:21px;font-weight:500;color:var(--ink-2);margin-left:3px}
 .ans.neg .big{color:var(--neg)}
-.exact{margin:8px 0 0;font-family:var(--mono);font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
-.split{margin:3px 0 0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.exact{margin:10px 0 0;font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
+        font-variant-numeric:tabular-nums;line-height:1.6}
+.split{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);
+       font-variant-numeric:tabular-nums;line-height:1.6}
 .why{margin:13px 0 0;font-size:15px;color:var(--ink-2);line-height:1.75}
 .why b{color:var(--ink);font-weight:600}
 .then{margin:11px 0 0;padding-top:11px;border-top:1px solid var(--line-2);font-size:14px;color:var(--ink-3)}
@@ -104,8 +107,8 @@ input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visi
 .wbar{display:flex;height:26px;margin:18px 0 0;border:1px solid var(--warn-line);overflow:hidden}
 .wbar .seg{display:flex;align-items:center;justify-content:center;font-family:var(--mono);
            font-size:11.5px;white-space:nowrap;overflow:hidden;min-width:0}
-.wbar .used{background:var(--warn-line);color:#5C2704}
-.wbar .left{background:#FFFFFF;color:var(--ink-2)}
+.wbar .used{background:var(--warn-line);color:#4A1F03}
+.wbar .left{background:#FFFFFF;color:var(--ink)}
 .wcols{display:flex;gap:14px;margin:10px 0 0}
 .wcols > div{font-size:14px;line-height:1.7;color:var(--ink-2);min-width:0}
 .wcols b{color:var(--ink);display:block;margin-bottom:2px}
@@ -446,7 +449,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
     if(o.exact !== null && Math.round(o.exact) !== o.amount){
       var ex=document.createElement("p"); ex.className="exact";
-      ex.textContent = "정확값 " + nf(o.exact,2) + "원 → 1,000원 반올림";
+      ex.textContent = "반올림 전 " + nf(o.exact,2) + "원";
       d.appendChild(ex);
     }
     var sp=vatSplit(o.amount);
@@ -465,7 +468,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     var extend = daysBetween(oldExp, newExp);
     var cn = state.plans[state.cur].name, nn = state.plans[state.nxt].name;
 
-    el("priceHead").textContent = "1년 가격 · " + vatWord();
+    el("priceHead").innerHTML = "1년 가격 · <b style=\"color:var(--accent)\">" + vatWord() + "</b>";
     el("revLabel").textContent = "받을 금액 (" + vatWord() + ")";
     el("vatNote").innerHTML = state.vat
       ? "체크를 풀면 10% 뺀 <b>공급가</b> 기준으로 전부 다시 계산된다"
