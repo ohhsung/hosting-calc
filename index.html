@@ -53,8 +53,9 @@ input.money{font-family:var(--mono);font-size:15.5px;font-weight:600;text-align:
             padding:9px 29px 9px 10px;font-variant-numeric:tabular-nums}
 input.txt{font-size:14px;padding:9px 11px}
 /* 만료일 입력 — 년/월/일 분리 + 자체 달력 */
-.dfield{position:relative;display:flex;align-items:center;gap:5px}
-.dfield input.dseg{width:auto;font-family:var(--mono);font-size:15.5px;font-weight:600;
+.dfield{position:relative;display:flex;align-items:center;gap:5px;flex-wrap:wrap;row-gap:6px}
+/* input 은 flex 아이템 기본 min-width:auto 가 20자 폭(약 200px)이라 flex-basis 를 무시한다 */
+.dfield input.dseg{width:auto;min-width:0;font-family:var(--mono);font-size:15.5px;font-weight:600;
                    text-align:center;padding:10px 4px;font-variant-numeric:tabular-nums}
 .dfield input.dy{flex:0 0 64px}
 .dfield input.dm,.dfield input.dd{flex:0 0 46px}
@@ -63,7 +64,7 @@ input.txt{font-size:14px;padding:9px 11px}
 .dhint{margin:7px 0 0;font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .dhint b{color:var(--ink);font-weight:600;font-family:var(--mono)}
 
-.calpop{position:absolute;top:calc(100% + 7px);left:0;z-index:30;width:268px;
+.calpop{position:absolute;top:calc(100% + 7px);left:0;z-index:30;width:268px;max-width:calc(100vw - 40px);
         background:var(--paper);border:1px solid var(--ink-3);padding:13px}
 .calhd{display:flex;align-items:center;gap:4px;margin-bottom:9px}
 .calhd .t{flex:1 1 auto;text-align:center;font-size:14.5px;font-weight:700;color:var(--ink)}
@@ -104,7 +105,7 @@ input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visi
 .vatnote b{font-family:var(--mono);color:var(--accent);font-weight:600}
 
 /* 현재 상황 */
-.situ{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.situ{display:grid;grid-template-columns:1fr 1fr 1.15fr;gap:16px}
 @media (max-width:640px){.situ{grid-template-columns:1fr}}
 
 /* 1일 이용료 — 세로 구분선만, 박스 없음 */
@@ -276,11 +277,11 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
       <div class="f">
         <span>현재 만료일</span>
         <div class="dfield">
-          <input type="text" class="dseg dy" id="expY" inputmode="numeric" maxlength="4" aria-label="만료 연도">
+          <input type="text" class="dseg dy" id="expY" inputmode="numeric" maxlength="4" size="4" aria-label="만료 연도">
           <span class="dsep">년</span>
-          <input type="text" class="dseg dm" id="expM" inputmode="numeric" maxlength="2" aria-label="만료 월">
+          <input type="text" class="dseg dm" id="expM" inputmode="numeric" maxlength="2" size="2" aria-label="만료 월">
           <span class="dsep">월</span>
-          <input type="text" class="dseg dd" id="expD" inputmode="numeric" maxlength="2" aria-label="만료 일">
+          <input type="text" class="dseg dd" id="expD" inputmode="numeric" maxlength="2" size="2" aria-label="만료 일">
           <span class="dsep">일</span>
           <button type="button" class="dcal" id="calBtn" aria-expanded="false">달력</button>
           <div class="calpop" id="calPop" hidden>
