@@ -155,6 +155,9 @@ label.f > span{font-size:13px;color:var(--ink-2);font-weight:600}
 .wr .wk{flex:1 1 190px;color:var(--ink-2)}
 .wr.tot .wk{color:var(--warn)}
 .wr .wv{flex:0 0 auto;margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.wend{margin:16px 0 0 !important;padding-top:14px;border-top:2px solid var(--warn);
+      font-size:15px;line-height:1.85;color:var(--ink)}
+.wend b{color:var(--warn);font-weight:700}
 .wr.tot .wv{color:var(--warn)}
 
 /* 접이식 — 박스 없이 구분선만 */
@@ -277,6 +280,11 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     </div>
   </section>
 
+  <section class="sec">
+    <div class="bh"><h2>정산 방법</h2><span class="hint">둘 중 하나를 고르면 됩니다</span></div>
+    <div id="answers"></div>
+  </section>
+
   <section class="sec doc">
     <div class="bh">
       <h2>고객 안내문</h2>
@@ -289,11 +297,6 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
   </section>
 
   <section class="sec">
-    <div class="bh"><h2>정산 방법</h2><span class="hint">둘 중 하나를 고르면 됩니다</span></div>
-    <div id="answers"></div>
-  </section>
-
-  <section class="sec">
     <div class="bh"><h2>계산 과정</h2><span class="hint">위 금액이 어떻게 나왔는지 순서대로</span></div>
     <div id="steps"></div>
   </section>
@@ -303,6 +306,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     <p id="warnP1"></p>
     <p id="warnP2"></p>
     <div class="wtable" id="warnTable"></div>
+    <p class="wend" id="warnEnd"></p>
   </div>
 
   <details>
@@ -620,12 +624,15 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     el("warnP1").innerHTML=
       '<span class="n">'+nf(m.dPn)+" − "+nf(m.dPc)+" = "+nf(m.W)+"원</span>";
     el("warnP2").innerHTML=
-      "여기서 뺀 <span class=\"n\">"+nf(m.dPc)+"원</span>은 "+cn+" <b>1년치</b>입니다. "+
-      "그런데 안 쓰고 남은 건 <b>"+m.D+"일치</b>뿐입니다.";
+      "여기서 뺀 <span class=\"n\">"+nf(m.dPc)+"원</span>은 "+cn+" <b>1년치</b> 요금입니다. "+
+      "그런데 이 고객이 안 쓰고 남긴 건 <b>"+m.D+"일치</b>뿐입니다. 그만큼만 빼줄 수 있습니다.";
     el("warnTable").innerHTML=
       '<div class="wr"><div class="wk">뺀 금액 · '+cn+' 1년치</div><div class="wv">'+nf(m.dPc)+'원</div></div>'+
       '<div class="wr"><div class="wk">뺄 수 있는 금액 · 안 쓴 '+m.D+'일치</div><div class="wv">'+nf(m.C)+'원</div></div>'+
-      '<div class="wr tot"><div class="wk">차이 · 이미 쓴 '+m.U+'일치</div><div class="wv">'+nf(Math.round(m.loss))+'원</div></div>';
+      '<div class="wr tot"><div class="wk">너무 많이 빼준 금액 · 이미 쓴 '+m.U+'일치</div><div class="wv">'+nf(Math.round(m.loss))+'원</div></div>';
+    el("warnEnd").innerHTML=
+      "그래서 <span class=\"n\">"+nf(m.W)+"원</span>을 받고 1년을 주면 <b>"+nf(Math.round(m.loss))+"원을 덜 받는 것</b>입니다.<br>"+
+      "1년을 주려면 <b>"+nf(bR)+"원</b>을 받아야 합니다. (2안)";
   }
 
   function wtab(rows){
