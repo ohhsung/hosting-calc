@@ -55,8 +55,7 @@ h1{font-size:27px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;text-wrap
 .lede{margin:0;color:var(--ink-2);font-size:15px;max-width:46ch}
 
 .block{background:var(--surface);border:1px solid var(--line);padding:26px 26px 24px}
-.block > h2{font-size:13px;font-weight:600;margin:0 0 18px;color:var(--ink-3);
-            letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono)}
+.block > h2{font-size:14.5px;font-weight:600;margin:0 0 18px;color:var(--ink-2)}
 
 /* 가격표 */
 .plan{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line-2);flex-wrap:wrap}
@@ -91,9 +90,10 @@ input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visi
      padding:24px 26px}
 .ans.b{border-left-color:var(--accent-2)}
 .ans.neg{border-left-color:var(--neg)}
-.ans .no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.05em}
-.ans.neg .no{color:var(--neg)}
-.ans h3{font-size:18px;font-weight:600;margin:2px 0 14px;letter-spacing:-.015em;text-wrap:balance}
+.ans .no{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;
+     background:var(--accent-soft);color:var(--accent);font-family:var(--mono);font-size:15px;font-weight:600}
+.ans.neg .no{color:var(--neg);background:var(--soft-2)}
+.ans h3{font-size:18px;font-weight:600;margin:11px 0 14px;letter-spacing:-.015em;text-wrap:balance}
 .big{font-family:var(--mono);font-size:42px;font-weight:600;letter-spacing:-.035em;margin:0;
      line-height:1.05;font-variant-numeric:tabular-nums;word-break:keep-all}
 .big span{font-size:21px;font-weight:500;color:var(--ink-2);margin-left:3px}
@@ -122,8 +122,7 @@ summary::before{content:"▸";font-family:var(--mono);color:var(--ink-3);font-si
 details[open] summary::before{content:"▾"}
 summary:hover{color:var(--ink)}
 .dbody{padding:4px 26px 26px;border-top:1px solid var(--line-2);margin-top:-1px}
-.dh{font-size:13px;font-weight:600;color:var(--ink-3);margin:22px 0 8px;
-    font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.dh{font-size:14px;font-weight:600;color:var(--ink-2);margin:24px 0 9px}
 .dh:first-child{margin-top:20px}
 .wtab{width:100%;border-collapse:collapse;font-size:13.5px}
 .wtab td{padding:8px 0;border-bottom:1px solid var(--line-2);vertical-align:baseline}
@@ -179,7 +178,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     <div id="plans"></div>
     <div class="row">
       <button id="addPlan">+ 상품 추가</button>
-      <label class="chk"><input type="checkbox" id="vatChk"><span>부가세 포함 가격</span></label>
+      <label class="chk"><input type="checkbox" id="vatChk" checked><span>부가세 포함 가격</span></label>
       <button class="ghost" id="resetPlans">기본값으로</button>
       <span class="msg" id="sync"></span>
     </div>
@@ -422,7 +421,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
     var aR = rnd(m.A);
     box.appendChild(ansCard({
-      no:"①", cls: m.down ? "neg" : "",
+      no:"1", cls: m.down ? "neg" : "",
       title: m.down ? "만료일 그대로 두고 등급 내리기 (환불)" : "만료일 그대로 두고 등급만 올리기",
       amount: aR,
       why: m.down
@@ -434,7 +433,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     if(!m.down){
       var bR = rnd(m.B);
       box.appendChild(ansCard({
-        no:"②", cls:"b",
+        no:"2", cls:"b",
         title:"오늘부터 " + nn + " 1년으로 새로 시작",
         amount: bR,
         why: "정가 <b>" + nf(m.Pn) + "원</b>에서 안 쓴 " + m.D + "일치 <b>" + won(m.C) + "</b>을 빼줬다. " +
