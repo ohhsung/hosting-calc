@@ -17,125 +17,160 @@
 <style>
 :root{
   color-scheme: light;
-  --bg:#F4F5F8; --surface:#FFFFFF; --soft:#F7F8FB; --soft-2:#EBEDF3;
-  --ink:#000000; --ink-2:#333844; --ink-3:#6E7484;
-  --line:#D9DDE6; --line-2:#E9EBF1;
-  --accent:#1F1BA8; --accent-2:#3D38D6; --accent-soft:#EAE9FA;
-  --warn:#8A3B06; --warn-soft:#FDF3EA; --warn-line:#E3C4A4;
-  --neg:#A3122F;
+  --bg:#EDEFF3; --paper:#FFFFFF; --field:#F5F6FA; --fill:#EEF0F5;
+  --ink:#000000; --ink-2:#2C3240; --ink-3:#6A7183;
+  --line:#DCE0E8; --hair:#EBEEF3;
+  --accent:#1B1AA0; --accent-2:#4B48D6; --accent-soft:#E9E9FA;
+  --warn:#8A3B06; --warn-soft:#FBF2E8; --warn-line:#E0C4A6;
+  --neg:#9E1130;
   --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
-
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
-.page{max-width:800px;margin:0 auto;padding:40px 20px 90px;display:flex;flex-direction:column;gap:28px}
+.page{max-width:800px;margin:0 auto;padding:36px 18px 80px}
 
-h1{font-size:27px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;color:var(--ink);text-wrap:balance}
-.lede{margin:0;color:var(--ink-2);font-size:15px;max-width:48ch}
+/* 종이 한 장 — 안쪽은 전부 구분선으로만 나눈다 */
+.sheet{background:var(--paper);border:1px solid var(--line)}
+.sec{padding:26px 30px;border-top:1px solid var(--line)}
+.sec:first-child{border-top:none}
 
-.block{background:var(--surface);border:1px solid var(--line);padding:24px 26px 22px}
-.block > h2{font-size:15px;font-weight:600;margin:0 0 5px;color:var(--ink)}
-.block > .sub{font-size:13.5px;color:var(--ink-3);margin:0 0 16px}
+/* 헤더 */
+.mast{padding:32px 30px 26px}
+.mast h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;color:var(--ink)}
+.mast p{margin:0;color:var(--ink-2);font-size:15px;max-width:58ch}
+.mast p b{color:var(--ink);font-weight:600}
 
-/* 가격표 */
-.phead{display:flex;align-items:flex-end;gap:12px;padding-bottom:9px;border-bottom:1px solid var(--line);
-       font-size:12.5px;color:var(--ink-3);font-weight:500}
-.plan{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-2);flex-wrap:wrap}
-.plan:last-of-type{border-bottom:none}
-.c-name{flex:0 0 100px;min-width:0}
-.c-money{flex:0 0 152px;position:relative}
-.c-money.h{text-align:right}
-.c-note{flex:1 1 150px;min-width:0}
-.c-del{flex:0 0 32px;text-align:right}
-.won{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--ink-3);font-size:13px;pointer-events:none}
+/* 섹션 제목 */
+.bh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 16px}
+.bh h2{font-size:15px;font-weight:700;margin:0;color:var(--ink);letter-spacing:-.01em}
+.bh .hint{font-size:13px;color:var(--ink-3)}
 
-input:not([type=checkbox]),select{font-family:var(--sans);font-size:16px;color:var(--ink);background:var(--soft);
-  border:1px solid var(--line);padding:11px 13px;width:100%;border-radius:0;appearance:none}
-input.money{font-family:var(--mono);font-size:16px;font-weight:600;text-align:right;
-            padding:10px 30px 10px 10px;font-variant-numeric:tabular-nums;color:var(--ink)}
-input.small{font-size:14px;padding:9px 11px;background:var(--soft);border-color:var(--line-2);color:var(--ink)}
-input.small:hover{border-color:var(--line)}
-input.small::placeholder{color:var(--ink-3)}
-input[type=date]{font-family:var(--mono);font-size:15px}
+/* 입력 */
+input:not([type=checkbox]),select{font-family:var(--sans);font-size:15.5px;color:var(--ink);background:var(--field);
+  border:1px solid var(--line);padding:10px 12px;width:100%;border-radius:0;appearance:none}
+input.money{font-family:var(--mono);font-size:15.5px;font-weight:600;text-align:right;
+            padding:9px 29px 9px 10px;font-variant-numeric:tabular-nums}
+input.txt{font-size:14px;padding:9px 11px}
+input[type=date]{font-family:var(--mono);font-size:14.5px}
 select{cursor:pointer;font-weight:500}
 input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+label.f{display:flex;flex-direction:column;gap:6px;min-width:0}
+label.f > span{font-size:13px;color:var(--ink-2);font-weight:600}
 
-/* 부가세 토글 */
-.vatbar{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-top:16px;padding-top:15px;
-        border-top:1px solid var(--line-2)}
-.chk{display:inline-flex;align-items:center;gap:9px;font-size:15px;color:var(--ink);cursor:pointer;font-weight:600}
+/* 가격표 — 행 구분선만 */
+.phead,.plan{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.phead{padding-bottom:8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink-3);font-weight:600}
+.plan{padding:8px 0;border-bottom:1px solid var(--hair)}
+.plan:last-of-type{border-bottom:none}
+.c-name{flex:0 0 104px;min-width:0}
+.c-money{flex:0 0 148px;position:relative}
+.c-money.h{text-align:right}
+.c-note{flex:1 1 150px;min-width:0}
+.c-del{flex:0 0 30px;text-align:right}
+.won{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--ink-3);font-size:13px;pointer-events:none}
+.vatbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}
+.chk{display:inline-flex;align-items:center;gap:8px;font-size:15px;color:var(--ink);cursor:pointer;font-weight:600}
 .chk input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;padding:0;margin:0;flex:0 0 auto}
-.vatnote{font-size:13.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.vatnote{font-size:13px;color:var(--ink-2)}
 .vatnote b{font-family:var(--mono);color:var(--accent);font-weight:600}
 
-/* 상황 */
-.situ{display:flex;flex-wrap:wrap;gap:16px}
-.f{display:flex;flex-direction:column;gap:6px;flex:1 1 190px;min-width:0}
-.f > span{font-size:13.5px;color:var(--ink-2);font-weight:500}
-.remain{margin:16px 0 0;padding-top:15px;border-top:1px solid var(--line-2);font-size:15px;color:var(--ink-2)}
-.remain b{color:var(--ink);font-weight:600;font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* 현재 상황 */
+.situ{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:640px){.situ{grid-template-columns:1fr}}
 
-/* 답 */
-.answers{display:flex;flex-direction:column;gap:14px}
-.ans{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);padding:22px 26px}
-.ans.b{border-left-color:var(--accent-2)}
-.ans.neg{border-left-color:var(--neg)}
-.ans .no{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;
-     background:var(--accent-soft);color:var(--accent);font-family:var(--mono);font-size:15px;font-weight:600}
-.ans.neg .no{color:var(--neg);background:var(--soft-2)}
-.ans h3{font-size:18px;font-weight:600;margin:10px 0 12px;color:var(--ink);letter-spacing:-.015em;text-wrap:balance}
-.big{font-family:var(--mono);font-size:42px;font-weight:600;letter-spacing:-.035em;margin:0;color:var(--ink);
+/* 1일 이용료 — 세로 구분선만, 박스 없음 */
+.rates{display:grid;grid-template-columns:1fr 1fr 1fr}
+@media (max-width:640px){.rates{grid-template-columns:1fr;gap:18px}}
+.rate{padding:0 20px;border-left:1px solid var(--hair);min-width:0}
+.rate:first-child{padding-left:0;border-left:none}
+.rate:last-child{padding-right:0}
+@media (max-width:640px){.rate{padding:0;border-left:none}}
+.rate .rk{font-size:12.5px;color:var(--ink-3);font-weight:600;margin:0 0 5px}
+.rate.accent .rk{color:var(--accent)}
+.rate .rv{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-.03em;margin:0;
+          color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.15}
+.rate.accent .rv{color:var(--accent)}
+.rate .rv i{font-style:normal;font-size:14px;font-weight:500;color:var(--ink-3);margin-left:2px}
+.rate .re{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin:6px 0 0;font-variant-numeric:tabular-nums}
+
+/* 기간 막대 */
+.timeline{margin:24px 0 0;padding-top:22px;border-top:1px solid var(--hair)}
+.tbar{display:flex;height:28px;border:1px solid var(--line)}
+.tbar .seg{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11.5px;
+           font-weight:600;white-space:nowrap;overflow:hidden;min-width:0}
+.tbar .used{background:var(--fill);color:var(--ink-2)}
+.tbar .left{background:var(--accent);color:#fff}
+.tlab{display:flex;gap:14px;margin:9px 0 0;font-size:13.5px;color:var(--ink-2)}
+.tlab > div{min-width:0}
+.tlab b{display:block;color:var(--ink);font-weight:600;margin-bottom:1px}
+@media (max-width:640px){.tlab{flex-direction:column;gap:8px}.tlab > div{flex:1 1 auto !important}}
+
+/* 정산 방법 — 박스 없이 구분선으로만 */
+.ans{padding:24px 0 0;margin-top:22px;border-top:1px solid var(--hair)}
+.ans:first-child{padding-top:0;margin-top:0;border-top:none}
+.atop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.ano{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;flex:0 0 auto;
+     background:var(--accent);color:#fff;font-family:var(--mono);font-size:13px;font-weight:600}
+.ans.neg .ano{background:var(--neg)}
+.ans h3{font-size:17px;font-weight:700;margin:0;color:var(--ink);letter-spacing:-.015em}
+.big{font-family:var(--mono);font-size:40px;font-weight:600;letter-spacing:-.035em;margin:13px 0 0;color:var(--ink);
      line-height:1.05;font-variant-numeric:tabular-nums;word-break:keep-all}
-.big span{font-size:21px;font-weight:500;color:var(--ink-2);margin-left:3px}
+.big span{font-size:20px;font-weight:500;color:var(--ink-3);margin-left:3px}
 .ans.neg .big{color:var(--neg)}
-.exact{margin:10px 0 0;font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
-        font-variant-numeric:tabular-nums;line-height:1.6}
-.split{margin:0;font-family:var(--mono);font-size:12.5px;color:var(--ink-2);
-       font-variant-numeric:tabular-nums;line-height:1.6}
-.why{margin:13px 0 0;font-size:15px;color:var(--ink-2);line-height:1.75}
-.why b{color:var(--ink);font-weight:600}
-.then{margin:11px 0 0;padding-top:11px;border-top:1px solid var(--line-2);font-size:14px;color:var(--ink-3)}
-.then b{color:var(--ink-2);font-weight:600}
+.sub2{margin:8px 0 0;font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
+      font-variant-numeric:tabular-nums;line-height:1.7}
+.facts{margin:16px 0 0;display:flex;flex-direction:column;gap:7px}
+.fact{display:flex;gap:12px;font-size:14.5px;flex-wrap:wrap}
+.fact .fk{flex:0 0 92px;color:var(--ink-3)}
+.fact .fv{flex:1 1 200px;color:var(--ink-2)}
+.fact .fv b{color:var(--ink);font-weight:600}
 
-/* 경고 */
-.warn{background:var(--warn-soft);border:1px solid var(--warn-line);border-left:5px solid var(--warn);padding:22px 26px}
-.warn h3{font-size:17px;font-weight:700;margin:0 0 10px;color:var(--warn)}
-.warn p{margin:0;font-size:15px;line-height:1.8;color:var(--ink)}
+/* 계산 과정 */
+.step{display:flex;gap:15px;padding:18px 0;border-top:1px solid var(--hair)}
+.step:first-child{padding-top:0;border-top:none}
+.step:last-child{padding-bottom:0}
+.sno{flex:0 0 24px;height:24px;display:flex;align-items:center;justify-content:center;
+     background:var(--ink);color:#fff;font-family:var(--mono);font-size:12.5px;font-weight:600}
+.sbody{flex:1 1 auto;min-width:0}
+.sbody h4{margin:0 0 8px;font-size:15.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.sbody p{margin:0;font-size:14.5px;color:var(--ink-2);line-height:1.75}
+.sbody p + p{margin-top:7px}
+.sbody b{color:var(--ink);font-weight:600}
+.calc{font-family:var(--mono);font-size:13px;border-left:2px solid var(--line);
+      padding:2px 0 2px 14px;margin:11px 0 0;overflow-x:auto;white-space:pre;color:var(--ink-2);
+      font-variant-numeric:tabular-nums;line-height:2}
+.calc em{font-style:normal;color:var(--accent);font-weight:600}
+
+/* 자주 하는 실수 — 한 겹만 */
+.warn{padding:24px 30px;background:var(--warn-soft);border-top:1px solid var(--warn-line)}
+.warn h3{font-size:15.5px;font-weight:700;margin:0 0 10px;color:var(--warn)}
+.warn p{margin:0;font-size:14.5px;line-height:1.8;color:var(--ink)}
+.warn p + p{margin-top:8px}
 .warn b{font-weight:600}
 .n{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
-.wbar{display:flex;height:26px;margin:18px 0 0;border:1px solid var(--warn-line);overflow:hidden}
-.wbar .seg{display:flex;align-items:center;justify-content:center;font-family:var(--mono);
-           font-size:11.5px;white-space:nowrap;overflow:hidden;min-width:0}
-.wbar .used{background:var(--warn-line);color:#4A1F03}
-.wbar .left{background:#FFFFFF;color:var(--ink)}
-.wcols{display:flex;gap:14px;margin:10px 0 0}
-.wcols > div{font-size:14px;line-height:1.7;color:var(--ink-2);min-width:0}
-.wcols b{color:var(--ink);display:block;margin-bottom:2px}
-@media (max-width:620px){ .wcols{flex-direction:column;gap:10px} .wcols > div{flex:1 1 auto !important} }
-.wcase{margin-top:18px;padding-top:15px;border-top:1px solid var(--warn-line)}
-.wcase > p{margin:0 0 8px;font-weight:600;font-size:15px}
-.wrow{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-bottom:1px dashed var(--warn-line);
-      font-size:14.5px;flex-wrap:wrap}
-.wrow:last-child{border-bottom:none}
-.wrow .wk{flex:0 0 152px;color:var(--ink-2)}
-.wrow .wv{flex:1 1 200px;color:var(--ink)}
-.wrow .wv em{font-style:normal;font-weight:700;color:var(--warn);font-family:var(--mono);font-variant-numeric:tabular-nums}
-.wsub{color:var(--ink-3);font-size:13.5px}
+.wtable{margin:16px 0 0}
+.wr{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--warn-line);font-size:14.5px;flex-wrap:wrap}
+.wr.tot{font-weight:700}
+.wr .wk{flex:1 1 190px;color:var(--ink-2)}
+.wr.tot .wk{color:var(--warn)}
+.wr .wv{flex:0 0 auto;margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.wr.tot .wv{color:var(--warn)}
+.wr .wn{flex:1 1 100%;font-size:13px;color:var(--ink-3);margin-top:1px}
 
-/* 자세히 */
-details{background:var(--surface);border:1px solid var(--line)}
-summary{padding:16px 26px;cursor:pointer;font-size:14.5px;font-weight:600;color:var(--ink-2);
+/* 접이식 — 박스 없이 구분선만 */
+details{border-top:1px solid var(--line)}
+summary{padding:16px 30px;cursor:pointer;font-size:14.5px;font-weight:600;color:var(--ink-2);
         list-style:none;display:flex;align-items:center;gap:9px}
 summary::-webkit-details-marker{display:none}
-summary::before{content:"▸";font-family:var(--mono);color:var(--ink-3);font-size:13px}
-details[open] summary::before{content:"▾"}
+summary::before{content:"\25B8";font-family:var(--mono);color:var(--ink-3);font-size:13px}
+details[open] summary::before{content:"\25BE"}
 summary:hover{color:var(--ink)}
-.dbody{padding:4px 26px 24px;border-top:1px solid var(--line-2);margin-top:-1px}
-.dh{font-size:14px;font-weight:600;color:var(--ink);margin:22px 0 8px}
-.dh:first-child{margin-top:18px}
+.dbody{padding:0 30px 26px}
+.dh{font-size:13.5px;font-weight:700;color:var(--ink);margin:22px 0 6px}
+.dh:first-child{margin-top:4px}
 .wtab{width:100%;border-collapse:collapse;font-size:13.5px}
-.wtab td{padding:8px 0;border-bottom:1px solid var(--line-2);vertical-align:baseline}
+.wtab td{padding:7px 0;border-bottom:1px solid var(--hair);vertical-align:baseline}
 .wtab tr:last-child td{border-bottom:none}
 .wtab td.k{color:var(--ink-3);white-space:nowrap;padding-right:14px;width:1%}
 .wtab td.e{font-family:var(--mono);color:var(--ink-2);padding-right:14px;font-size:12.5px}
@@ -145,55 +180,52 @@ summary:hover{color:var(--ink)}
 .wtab tr.s td.v{color:var(--accent)}
 .dscroll{overflow-x:auto}
 .formula{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:2;
-         background:var(--soft);padding:14px 16px;overflow-x:auto;white-space:pre;margin:0}
-
-/* 역산 */
-.rev{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
-.rev .f{flex:0 0 210px}
-.revout{flex:1 1 240px;font-size:16px;color:var(--ink-2);min-width:0}
+         border-left:2px solid var(--line);padding:2px 0 2px 14px;overflow-x:auto;white-space:pre;margin:0}
+.rev{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:4px}
+.rev label.f{flex:0 0 210px}
+.revout{flex:1 1 240px;font-size:15.5px;color:var(--ink-2);min-width:0}
 .revout b{color:var(--accent);font-weight:600;font-family:var(--mono);font-variant-numeric:tabular-nums}
-
-/* 문구 */
-.sumbox{font-family:var(--mono);font-size:13.5px;line-height:1.95;white-space:pre-wrap;word-break:break-word;
-        background:var(--soft);border:1px solid var(--line);padding:18px 20px;color:var(--ink);
+.sumbox{font-family:var(--mono);font-size:13px;line-height:1.95;white-space:pre-wrap;word-break:break-word;
+        border-left:2px solid var(--line);padding:2px 0 2px 16px;color:var(--ink);
         font-variant-numeric:tabular-nums;user-select:all}
 
-button{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--ink);background:var(--soft);
-       border:1px solid var(--line);padding:9px 16px;cursor:pointer;border-radius:0}
-button:hover{background:var(--soft-2);border-color:var(--ink-3)}
+button{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--ink);background:var(--field);
+       border:1px solid var(--line);padding:8px 15px;cursor:pointer;border-radius:0}
+button:hover{background:var(--fill);border-color:var(--ink-3)}
 button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
 button.pri:hover{background:var(--accent-2);border-color:var(--accent-2)}
-button.ghost{background:transparent;border-color:transparent;color:var(--ink-3);padding:9px 4px;text-decoration:underline}
+button.ghost{background:transparent;border-color:transparent;color:var(--ink-3);padding:8px 4px;text-decoration:underline}
 button.ghost:hover{color:var(--ink);background:transparent}
-button.x{padding:7px 10px;color:var(--ink-3);font-family:var(--mono);background:transparent;border-color:transparent}
+button.x{padding:6px 9px;color:var(--ink-3);font-family:var(--mono);background:transparent;border-color:transparent}
 button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
-.msg{font-size:14px;color:var(--ink-3)}
-.foot{font-size:13px;color:var(--ink-3);line-height:1.9;text-align:center}
-@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.msg{font-size:13.5px;color:var(--ink-3)}
+.foot{font-size:12.5px;color:var(--ink-3);line-height:1.9;text-align:center;margin:18px 0 0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <main class="page">
+<div class="sheet">
 
-  <header>
-    <h1>등급 바꿀 때 얼마 받나</h1>
-    <p class="lede">차액은 <b>남은 기간</b>에만 붙는다. 이미 쓴 기간은 빼주는 게 아니다.</p>
+  <header class="mast">
+    <h1>호스팅 등급 변경 정산</h1>
+    <p>이용 기간 중간에 등급을 변경할 때 받아야 할 금액을 계산합니다.
+       정산 대상은 <b>남은 기간</b>이며, 이미 사용한 기간은 차감하지 않습니다.</p>
   </header>
 
-  <section class="block">
-    <h2>가격표</h2>
-    <p class="sub">여기 값을 바꾸면 아래 계산이 즉시 따라온다.</p>
+  <section class="sec">
+    <div class="bh"><h2>가격표</h2><span class="hint">값을 수정하면 아래 계산에 즉시 반영됩니다</span></div>
     <div class="phead">
       <div class="c-name">상품명</div>
-      <div class="c-money h" id="priceHead">1년 가격</div>
-      <div class="c-note">메모</div>
+      <div class="c-money h" id="priceHead">1년 요금</div>
+      <div class="c-note">비고</div>
       <div class="c-del"></div>
     </div>
     <div id="plans"></div>
     <div class="row">
-      <button id="addPlan">+ 상품 추가</button>
-      <button class="ghost" id="resetPlans">기본값으로</button>
+      <button id="addPlan">상품 추가</button>
+      <button class="ghost" id="resetPlans">기본값으로 되돌리기</button>
       <span class="msg" id="sync"></span>
     </div>
     <div class="vatbar">
@@ -202,56 +234,83 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     </div>
   </section>
 
-  <section class="block">
-    <h2>지금 상황</h2>
+  <section class="sec">
+    <div class="bh"><h2>현재 상황</h2></div>
     <div class="situ">
-      <label class="f"><span>지금 쓰는 등급</span><select id="cur"></select></label>
-      <label class="f"><span>바꿀 등급</span><select id="nxt"></select></label>
-      <label class="f"><span>지금 만료일</span><input type="date" id="exp"></label>
+      <label class="f"><span>현재 이용 등급</span><select id="cur"></select></label>
+      <label class="f"><span>변경할 등급</span><select id="nxt"></select></label>
+      <label class="f"><span>현재 만료일</span><input type="date" id="exp"></label>
     </div>
-    <p class="remain" id="remain"></p>
   </section>
 
-  <div class="answers" id="answers"></div>
+  <section class="sec">
+    <div class="bh"><h2>1일 이용료</h2><span class="hint">1년 요금 ÷ 365일</span></div>
+    <div class="rates">
+      <div class="rate">
+        <p class="rk" id="rk1"></p>
+        <p class="rv" id="rv1"></p>
+        <p class="re" id="re1"></p>
+      </div>
+      <div class="rate">
+        <p class="rk" id="rk2"></p>
+        <p class="rv" id="rv2"></p>
+        <p class="re" id="re2"></p>
+      </div>
+      <div class="rate accent">
+        <p class="rk">1일 차액</p>
+        <p class="rv" id="rv3"></p>
+        <p class="re" id="re3"></p>
+      </div>
+    </div>
+    <div class="timeline">
+      <div class="tbar">
+        <div class="seg used" id="segUsed"></div>
+        <div class="seg left" id="segLeft"></div>
+      </div>
+      <div class="tlab">
+        <div id="labUsed"></div>
+        <div id="labLeft"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="bh"><h2>정산 방법</h2><span class="hint">아래 두 가지 중 하나를 선택합니다</span></div>
+    <div id="answers"></div>
+  </section>
+
+  <section class="sec">
+    <div class="bh"><h2>계산 과정</h2><span class="hint">위 금액이 나온 순서입니다</span></div>
+    <div id="steps"></div>
+  </section>
 
   <div class="warn" id="warn" hidden>
     <h3 id="warnH"></h3>
-    <p id="warnLead"></p>
-    <div class="wbar">
-      <div class="seg used" id="wsegUsed"></div>
-      <div class="seg left" id="wsegLeft"></div>
-    </div>
-    <div class="wcols">
-      <div id="wcolUsed"></div>
-      <div id="wcolLeft"></div>
-    </div>
-    <div class="wcase">
-      <p id="wcaseTitle"></p>
-      <div class="wrow"><div class="wk" id="wk1"></div><div class="wv" id="wv1"></div></div>
-      <div class="wrow"><div class="wk" id="wk2"></div><div class="wv" id="wv2"></div></div>
-    </div>
+    <p id="warnP1"></p>
+    <p id="warnP2"></p>
+    <div class="wtable" id="warnTable"></div>
   </div>
 
   <details>
-    <summary>계산식 자세히 보기</summary>
+    <summary>상세 계산식</summary>
     <div class="dbody" id="detail"></div>
   </details>
 
   <details>
-    <summary>이 금액 받으면 며칠 줘야 하나 (역산)</summary>
+    <summary>금액 역산 — 이 금액을 받으면 며칠을 제공해야 하는가</summary>
     <div class="dbody">
-      <div class="rev" style="margin-top:18px">
+      <div class="rev" style="margin-top:16px">
         <label class="f"><span id="revLabel">받을 금액</span><input type="text" class="money" id="revAmt" inputmode="numeric"></label>
         <div class="revout" id="revOut"></div>
       </div>
-      <p class="formula" id="revEq" style="margin-top:16px"></p>
+      <p class="formula" id="revEq" style="margin-top:15px"></p>
     </div>
   </details>
 
   <details>
-    <summary>고객한테 보낼 문구</summary>
+    <summary>고객 안내문</summary>
     <div class="dbody">
-      <div class="sumbox" id="sumbox" style="margin-top:18px"></div>
+      <div class="sumbox" id="sumbox" style="margin-top:16px"></div>
       <div class="row">
         <button class="pri" id="copyBtn">복사</button>
         <span class="msg" id="copyMsg"></span>
@@ -259,8 +318,10 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     </div>
   </details>
 
-  <p class="foot">일할 계산 기준 1년 = 365일 · 청구액은 1,000원 단위 반올림(정확값 같이 표시)<br>
-    청구액은 <b>남은 일수</b>와 <b>가격</b>만으로 정해진다 — 계약 시작일은 필요 없다.</p>
+</div>
+
+  <p class="foot">일할 계산 기준 1년 = 365일 · 청구액은 1,000원 단위로 반올림하여 표시합니다.<br>
+    청구액은 <b>남은 일수</b>와 <b>요금</b>만으로 결정되므로 계약 시작일은 필요하지 않습니다.</p>
 
 </main>
 
@@ -269,7 +330,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
   "use strict";
   var T = 365, DAY = 86400000, UNIT = 1000, VAT = 1.1;
 
-  // 내부 저장값(price)은 항상 «부가세 포함가». 화면 표시만 모드에 따라 바꾼다.
+  // 내부 저장값(price)은 항상 «부가세 포함가». 표시만 모드에 따라 환산.
   var DEFAULT_PLANS = [
     { name:"플러스", price:330000,  note:"하루 방문자 200~250명" },
     { name:"확장형", price:550000,  note:"하루 방문자 500명 이상" },
@@ -283,43 +344,29 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
   function rnd(v){ return Math.round(v/UNIT)*UNIT; }
   function today(){ var d=new Date(); d.setHours(0,0,0,0); return d; }
   function fmtD(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-  function korD(d){ return (d.getMonth()+1)+"월 "+d.getDate()+"일"; }
   function fullD(d){ return d.getFullYear()+"년 "+(d.getMonth()+1)+"월 "+d.getDate()+"일"; }
   function addDays(d,n){ var x=new Date(d.getTime()); x.setDate(x.getDate()+n); return x; }
   function addYear(d){ var x=new Date(d.getTime()); x.setFullYear(x.getFullYear()+1); return x; }
   function daysBetween(a,b){ return Math.round((b-a)/DAY); }
   function mo(days){ return (days/30.4375).toFixed(1); }
   function el(id){ return document.getElementById(id); }
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-  /* ── 부가세 모드 ───────────────────────────────────────
-     내부값은 언제나 부가세 포함가.
-     체크 ON  → 그대로 표시 (330,000)
-     체크 OFF → ÷1.1 해서 표시 (300,000)
-     아래 모든 계산·문구가 이 표시 기준을 따른다.          */
-  function disp(v){ return state.vat ? v : v / VAT; }        // 내부 → 표시
-  function store(v){ return state.vat ? v : Math.round(v*VAT); } // 표시 입력 → 내부
-  function w1(v){ return Math.round(disp(v)); }              // 표시 금액 (1원 단위)
-  function wK(v){ return rnd(disp(v)); }                     // 청구 금액 (1,000원 반올림)
+  /* 부가세 모드: 체크 ON → 포함가 그대로, OFF → ÷1.1 한 공급가 기준 */
+  function disp(v){ return state.vat ? v : v/VAT; }
+  function store(v){ return state.vat ? v : Math.round(v*VAT); }
+  function w1(v){ return Math.round(disp(v)); }
   function vatWord(){ return state.vat ? "부가세 포함" : "부가세 별도"; }
-
-  // 표시 금액을 공급가/부가세로 풀어 씀 (합이 정확히 맞도록 나머지로 계산)
   function vatSplit(a){
-    a = Math.abs(a);
-    if(!a) return "";
-    if(state.vat){
-      var b = Math.round(a/VAT);
-      return "공급가 " + nf(b) + " + 부가세 " + nf(a-b) + " = " + nf(a);
-    }
-    var t = Math.round(a*VAT);
-    return "공급가 " + nf(a) + " + 부가세 " + nf(t-a) + " = " + nf(t);
+    a = Math.abs(a); if(!a) return "";
+    if(state.vat){ var b=Math.round(a/VAT); return "공급가 "+nf(b)+" + 부가세 "+nf(a-b)+" = "+nf(a); }
+    var t = Math.round(a*VAT); return "공급가 "+nf(a)+" + 부가세 "+nf(t-a)+" = "+nf(t);
   }
 
-  var LS = "hosting-proration-v4", dbRef = null, saveTimer = null;
-
+  var LS = "hosting-proration-v5", dbRef=null, saveTimer=null;
   function loadLocal(){
     try{ var r=localStorage.getItem(LS);
-      if(r){ var d=JSON.parse(r); if(d && d.plans && d.plans.length) return d; }
-    }catch(e){}
+      if(r){ var d=JSON.parse(r); if(d&&d.plans&&d.plans.length) return d; } }catch(e){}
     return null;
   }
   function persist(){
@@ -327,22 +374,20 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function(){
       if(!dbRef) return;
-      dbRef.set({ plans:state.plans, vat:state.vat, updatedAt:Date.now() })
-        .then(function(){ el("sync").textContent="저장됨"; setTimeout(function(){ el("sync").textContent=""; },2000); })
+      dbRef.set({plans:state.plans, vat:state.vat, updatedAt:Date.now()})
+        .then(function(){ el("sync").textContent="저장됨"; setTimeout(function(){el("sync").textContent="";},2000); })
         .catch(function(){});
     }, 500);
   }
   function applyRemote(d){
-    if(!d || !Array.isArray(d.plans) || !d.plans.length) return;
-    if(JSON.stringify({p:d.plans,v:!!d.vat}) === JSON.stringify({p:state.plans,v:!!state.vat})) return;
-    var a = document.activeElement;
-    if(a && a.closest && a.closest("#plans")) return;
-    state.plans = d.plans; state.vat = !!d.vat;
-    el("vatChk").checked = state.vat;
+    if(!d||!Array.isArray(d.plans)||!d.plans.length) return;
+    if(JSON.stringify({p:d.plans,v:!!d.vat})===JSON.stringify({p:state.plans,v:!!state.vat})) return;
+    var a=document.activeElement; if(a&&a.closest&&a.closest("#plans")) return;
+    state.plans=d.plans; state.vat=!!d.vat; el("vatChk").checked=state.vat;
     clamp(); buildSelects(); buildPlans(); render();
   }
   function initDb(){
-    if(!(window.claude && typeof window.claude.use === "function")) return;
+    if(!(window.claude && typeof window.claude.use==="function")) return;
     window.claude.use("db").then(function(db){
       if(!db) return;
       dbRef = db.doc("config/pricing");
@@ -351,346 +396,392 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
   }
 
   function clamp(){
-    var n = state.plans.length;
-    if(state.cur >= n) state.cur = 0;
-    if(state.nxt >= n) state.nxt = n-1;
+    var n=state.plans.length;
+    if(state.cur>=n) state.cur=0;
+    if(state.nxt>=n) state.nxt=n-1;
   }
-
   function buildSelects(){
     ["cur","nxt"].forEach(function(id){
-      var s = el(id), keep = (id==="cur" ? state.cur : state.nxt);
-      s.innerHTML = "";
+      var s=el(id), keep=(id==="cur"?state.cur:state.nxt);
+      s.innerHTML="";
       state.plans.forEach(function(p,i){
-        var o = document.createElement("option");
-        o.value = i;
-        o.textContent = p.name + " — 1년 " + nf(w1(p.price)) + "원";
+        var o=document.createElement("option");
+        o.value=i; o.textContent=p.name+" — 1년 "+nf(w1(p.price))+"원";
         s.appendChild(o);
       });
-      s.value = String(keep);
+      s.value=String(keep);
     });
   }
-
   function buildPlans(){
-    var box = el("plans");
-    box.innerHTML = "";
+    var box=el("plans"); box.innerHTML="";
     state.plans.forEach(function(p,i){
-      var row = document.createElement("div");
-      row.className = "plan";
+      var row=document.createElement("div"); row.className="plan";
 
-      var cn = document.createElement("div"); cn.className="c-name";
-      var n = document.createElement("input");
-      n.type="text"; n.className="small"; n.value=p.name; n.setAttribute("aria-label","상품명");
-      n.addEventListener("input", function(){ state.plans[i].name=n.value; buildSelects(); render(); persist(); });
-      cn.appendChild(n); row.appendChild(cn);
+      var c1=document.createElement("div"); c1.className="c-name";
+      var n=document.createElement("input"); n.type="text"; n.className="txt"; n.value=p.name;
+      n.setAttribute("aria-label","상품명");
+      n.addEventListener("input",function(){ state.plans[i].name=n.value; buildSelects(); render(); persist(); });
+      c1.appendChild(n); row.appendChild(c1);
 
-      var cm = document.createElement("div"); cm.className="c-money";
-      var pr = document.createElement("input");
-      pr.type="text"; pr.className="money"; pr.inputMode="numeric";
-      pr.value = nf(w1(p.price));
-      pr.setAttribute("aria-label", p.name+" 1년 가격");
-      pr.addEventListener("input", function(){
-        state.plans[i].price = store(digits(pr.value));
+      var c2=document.createElement("div"); c2.className="c-money";
+      var pr=document.createElement("input"); pr.type="text"; pr.className="money"; pr.inputMode="numeric";
+      pr.value=nf(w1(p.price)); pr.setAttribute("aria-label",p.name+" 1년 요금");
+      pr.addEventListener("input",function(){
+        state.plans[i].price=store(digits(pr.value));
         buildSelects(); render(); persist();
       });
-      pr.addEventListener("blur", function(){ pr.value = nf(w1(state.plans[i].price)); });
-      var w = document.createElement("span"); w.className="won"; w.textContent="원";
-      cm.appendChild(pr); cm.appendChild(w); row.appendChild(cm);
+      pr.addEventListener("blur",function(){ pr.value=nf(w1(state.plans[i].price)); });
+      var w=document.createElement("span"); w.className="won"; w.textContent="원";
+      c2.appendChild(pr); c2.appendChild(w); row.appendChild(c2);
 
-      var cnote = document.createElement("div"); cnote.className="c-note";
-      var nt = document.createElement("input");
-      nt.type="text"; nt.className="small"; nt.value=p.note||""; nt.placeholder="메모";
-      nt.setAttribute("aria-label","메모");
-      nt.addEventListener("input", function(){ state.plans[i].note=nt.value; persist(); });
-      cnote.appendChild(nt); row.appendChild(cnote);
+      var c3=document.createElement("div"); c3.className="c-note";
+      var nt=document.createElement("input"); nt.type="text"; nt.className="txt"; nt.value=p.note||"";
+      nt.placeholder="비고"; nt.setAttribute("aria-label","비고");
+      nt.addEventListener("input",function(){ state.plans[i].note=nt.value; persist(); });
+      c3.appendChild(nt); row.appendChild(c3);
 
-      var cdel = document.createElement("div"); cdel.className="c-del";
-      if(state.plans.length > 1){
-        var x = document.createElement("button");
-        x.className="x"; x.textContent="✕"; x.title="삭제";
-        x.setAttribute("aria-label", p.name+" 삭제");
-        x.addEventListener("click", function(){
+      var c4=document.createElement("div"); c4.className="c-del";
+      if(state.plans.length>1){
+        var x=document.createElement("button"); x.className="x"; x.textContent="✕";
+        x.title="삭제"; x.setAttribute("aria-label",p.name+" 삭제");
+        x.addEventListener("click",function(){
           state.plans.splice(i,1); clamp(); buildSelects(); buildPlans(); render(); persist();
         });
-        cdel.appendChild(x);
+        c4.appendChild(x);
       }
-      row.appendChild(cdel);
+      row.appendChild(c4);
       box.appendChild(row);
     });
   }
 
-  /* ── 계산 ──────────────────────────────────────────────
-     화면 표시 기준(dPc/dPn)으로 직접 계산한다.
-     그래야 화면의 뺄셈과 결과가 정확히 일치한다.          */
+  /* 표시 기준 금액으로 직접 계산 → 화면의 사칙연산과 결과가 항상 일치 */
   function compute(){
-    var dPc = w1(state.plans[state.cur].price);
-    var dPn = w1(state.plans[state.nxt].price);
-    var D = Math.max(0, state.days), U = Math.max(0, T - D);
-    var C = dPc * D / T;                 // 안 쓴 크레딧
+    var dPc=w1(state.plans[state.cur].price);
+    var dPn=w1(state.plans[state.nxt].price);
+    var D=Math.max(0,state.days), U=Math.max(0,T-D);
     return {
-      dPc:dPc, dPn:dPn, D:D, U:U, C:C,
-      A:(dPn-dPc)*D/T,                   // 1안: 잔여기간 차액
-      B:dPn - C,                         // 2안: 신규 1년 − 크레딧
-      W:dPn - dPc,                       // 오답: 전액 차감
-      loss:dPc * U / T,                  // 오답 시 손해
-      down:dPn < dPc, same:dPn === dPc
+      dPc:dPc, dPn:dPn, D:D, U:U,
+      rc:dPc/T, rn:dPn/T, rd:(dPn-dPc)/T,   // 1일 이용료
+      C:dPc*D/T,                            // 남은 기간 요금 (차감 가능액)
+      A:(dPn-dPc)*D/T,                      // 1안
+      B:dPn-(dPc*D/T),                      // 2안
+      W:dPn-dPc,                            // 두 요금을 그냥 뺀 값
+      loss:dPc*U/T,                         // 그렇게 할 때의 차이
+      down:dPn<dPc, same:dPn===dPc
     };
+  }
+
+  function render(){
+    var m=compute(), t0=today();
+    var oldExp=addDays(t0,m.D), newExp=addYear(t0);
+    var extend=daysBetween(oldExp,newExp);
+    var cn=state.plans[state.cur].name, nn=state.plans[state.nxt].name;
+    var aR=rnd(m.A), bR=rnd(m.B);
+
+    el("priceHead").innerHTML='1년 요금 · <b style="color:var(--accent)">'+vatWord()+'</b>';
+    el("revLabel").textContent="받을 금액 ("+vatWord()+")";
+    el("vatNote").innerHTML = state.vat
+      ? '체크를 해제하면 10% 뺀 <b>공급가</b> 기준으로 전부 다시 계산됩니다'
+      : '현재 <b>공급가(부가세 별도)</b> 기준입니다. 실제 청구액은 여기에 10%를 더한 금액입니다';
+
+    /* ── 1일 이용료 ── */
+    el("rk1").textContent=cn+" 1일 이용료";
+    el("rv1").innerHTML=nf(m.rc,1)+'<i>원</i>';
+    el("re1").textContent=nf(m.dPc)+" ÷ 365";
+    el("rk2").textContent=nn+" 1일 이용료";
+    el("rv2").innerHTML=nf(m.rn,1)+'<i>원</i>';
+    el("re2").textContent=nf(m.dPn)+" ÷ 365";
+    el("rv3").innerHTML=(m.rd<0?"−":"")+nf(Math.abs(m.rd),1)+'<i>원</i>';
+    el("re3").textContent=nf(m.rn,1)+" − "+nf(m.rc,1);
+
+    /* ── 기간 막대 ── */
+    el("segUsed").style.flex=m.U+" 1 0";
+    el("segLeft").style.flex=m.D+" 1 0";
+    el("segUsed").textContent=m.U>0?(m.U+"일 사용"):"";
+    el("segLeft").textContent=m.D>0?(m.D+"일 남음"):"";
+    el("labUsed").style.flex=m.U+" 1 0";
+    el("labLeft").style.flex=m.D+" 1 0";
+    el("labUsed").innerHTML="<b>이미 사용한 "+m.U+"일</b>서비스 제공이 끝난 기간입니다. 정산 대상이 아닙니다.";
+    el("labLeft").innerHTML="<b>남은 "+m.D+"일 · "+nf(m.C)+"원</b>아직 제공하지 않은 기간입니다. 정산은 이 범위에서만 이루어집니다.";
+
+    /* ── 정산 방법 ── */
+    var box=el("answers"); box.innerHTML="";
+    box.appendChild(ansCard({
+      no:"1", cls:m.down?"neg":"",
+      title:m.down?"만료일 유지 · 등급 하향 (환불)":"만료일 유지 · 등급만 상향",
+      amount:aR, exact:m.A,
+      facts:[
+        ["산출 근거", "1일 차액 <b>"+nf(Math.abs(m.rd),1)+"원</b> × 남은 <b>"+m.D+"일</b>"],
+        ["만료일", "<b>"+fmtD(oldExp)+"</b> · 변동 없음"],
+        ["다음 갱신", fullD(oldExp)+"에 "+nn+" 1년 <b>"+nf(m.dPn)+"원</b> 청구"]
+      ]
+    }));
+    if(!m.down){
+      box.appendChild(ansCard({
+        no:"2", cls:"b",
+        title:"오늘부터 "+nn+" 1년 신규 시작",
+        amount:bR, exact:m.B,
+        facts:[
+          ["산출 근거", nn+" 1년 <b>"+nf(m.dPn)+"원</b> − 남은 "+m.D+"일분 <b>"+nf(m.C)+"원</b>"],
+          ["만료일", "<b>"+fmtD(newExp)+"</b> · 기존 대비 "+extend+"일 연장"],
+          ["다음 갱신", fullD(newExp)+"에 "+nn+" 1년 <b>"+nf(m.dPn)+"원</b> 청구"]
+        ]
+      }));
+    }
+
+    renderSteps(m, oldExp, newExp, extend, cn, nn, aR, bR);
+    renderWarn(m, cn, nn, aR, bR);
+    renderDetail(m, newExp, extend, cn, nn, aR, bR);
+
+    /* ── 역산 ── */
+    if(!state.revTouched){ state.revAmt=Math.max(0,rnd(m.W)); el("revAmt").value=nf(state.revAmt); }
+    var D2 = m.dPn>0 ? (state.revAmt+m.C)*T/m.dPn : 0;
+    el("revOut").innerHTML="→ <b>"+D2.toFixed(0)+"일</b> (약 "+mo(D2)+"개월) · 만료일 <b>"+fmtD(addDays(t0,Math.round(D2)))+"</b>";
+    el("revEq").textContent=
+      "["+vatWord()+" 기준]\n(받을 금액 + 남은 기간 요금) ÷ 1일 이용료\n= ("+
+      nf(state.revAmt)+" + "+nf(m.C,2)+") ÷ "+nf(m.rn,2)+"\n= "+D2.toFixed(1)+"일";
+
+    renderSummary(m, oldExp, newExp, extend, cn, nn, aR, bR);
   }
 
   function ansCard(o){
     var d=document.createElement("section");
     d.className="ans"+(o.cls?" "+o.cls:"");
-    var no=document.createElement("div"); no.className="no"; no.textContent=o.no; d.appendChild(no);
-    var h=document.createElement("h3"); h.textContent=o.title; d.appendChild(h);
+    var top=document.createElement("div"); top.className="atop";
+    var no=document.createElement("div"); no.className="ano"; no.textContent=o.no;
+    var h=document.createElement("h3"); h.textContent=o.title;
+    top.appendChild(no); top.appendChild(h); d.appendChild(top);
 
     var big=document.createElement("p"); big.className="big";
     big.appendChild(document.createTextNode(nf(o.amount)));
     var s=document.createElement("span"); s.textContent="원"; big.appendChild(s);
     d.appendChild(big);
 
-    if(o.exact !== null && Math.round(o.exact) !== o.amount){
-      var ex=document.createElement("p"); ex.className="exact";
-      ex.textContent = "반올림 전 " + nf(o.exact,2) + "원";
-      d.appendChild(ex);
+    var lines=[];
+    if(Math.round(o.exact)!==o.amount) lines.push("반올림 전 "+nf(o.exact,2)+"원");
+    var sp=vatSplit(o.amount); if(sp) lines.push(sp);
+    if(lines.length){
+      var s2=document.createElement("p"); s2.className="sub2"; s2.innerHTML=lines.join("<br>");
+      d.appendChild(s2);
     }
-    var sp=vatSplit(o.amount);
-    if(sp){ var spp=document.createElement("p"); spp.className="split"; spp.textContent=sp; d.appendChild(spp); }
 
-    var why=document.createElement("p"); why.className="why"; why.innerHTML=o.why; d.appendChild(why);
-    if(o.then){ var t=document.createElement("p"); t.className="then"; t.innerHTML=o.then; d.appendChild(t); }
+    var fw=document.createElement("div"); fw.className="facts";
+    o.facts.forEach(function(f){
+      var r=document.createElement("div"); r.className="fact";
+      var k=document.createElement("div"); k.className="fk"; k.textContent=f[0];
+      var v=document.createElement("div"); v.className="fv"; v.innerHTML=f[1];
+      r.appendChild(k); r.appendChild(v); fw.appendChild(r);
+    });
+    d.appendChild(fw);
     return d;
   }
 
-  function render(){
-    var m = compute(), t0 = today();
-    var oldExp = addDays(t0, m.D);
-    var newExp = addYear(t0);                       // 달력상 1년 뒤 (윤년 정확)
-    var newTermDays = daysBetween(t0, newExp);      // 365 또는 366
-    var extend = daysBetween(oldExp, newExp);
-    var cn = state.plans[state.cur].name, nn = state.plans[state.nxt].name;
+  /* ── 계산 과정 (쉬운 설명) ── */
+  function renderSteps(m, oldExp, newExp, extend, cn, nn, aR, bR){
+    var S=[];
 
-    el("priceHead").innerHTML = "1년 가격 · <b style=\"color:var(--accent)\">" + vatWord() + "</b>";
-    el("revLabel").textContent = "받을 금액 (" + vatWord() + ")";
-    el("vatNote").innerHTML = state.vat
-      ? "체크를 풀면 10% 뺀 <b>공급가</b> 기준으로 전부 다시 계산된다"
-      : "지금은 <b>공급가(부가세 별도)</b> 기준 · 실제 청구는 여기에 10% 더한 금액";
+    S.push(["1","1년 요금을 1일 이용료로 바꿉니다",
+      "<p>1년 단위 금액은 중간 정산에 바로 쓸 수 없습니다. 365로 나누어 <b>하루에 얼마짜리 서비스인지</b>부터 구합니다.</p>" +
+      '<div class="calc">'+esc(cn)+"   "+nf(m.dPc)+" ÷ 365 = <em>"+nf(m.rc,1)+"원</em> / 1일\n"+
+      esc(nn)+"   "+nf(m.dPn)+" ÷ 365 = <em>"+nf(m.rn,1)+"원</em> / 1일\n"+
+      "차액                     = <em>"+nf(m.rd,1)+"원</em> / 1일</div>"]);
 
-    el("remain").innerHTML =
-      "남은 기간 <b>" + m.D + "일</b> (약 " + mo(m.D) + "개월) · 이미 쓴 기간 <b>" + m.U + "일</b><br>" +
-      "안 쓰고 남은 " + cn + " 요금 = <b>" + nf(m.C) + "원</b> — 빼줄 수 있는 건 여기까지다.";
+    S.push(["2","남은 기간을 확인합니다",
+      "<p>계약 1년(365일) 중 <b>"+m.U+"일은 이미 사용</b>했고 <b>"+m.D+"일이 남아</b> 있습니다. "+
+      "만료일은 "+fullD(oldExp)+"입니다.</p>"]);
 
-    var box = el("answers"); box.innerHTML = "";
+    S.push(["3","이미 사용한 기간은 정산에서 제외합니다",
+      "<p>이미 지난 "+m.U+"일은 서비스 제공이 끝난 기간입니다. 되돌리거나 상위 등급으로 바꿔 드릴 수 없으므로 <b>차감 대상이 아닙니다</b>.</p>"+
+      "<p>정산할 수 있는 것은 아직 제공하지 않은 <b>남은 "+m.D+"일분</b>뿐이며, 금액으로는 다음과 같습니다.</p>"+
+      '<div class="calc">'+esc(cn)+" 남은 "+m.D+"일분\n"+
+      nf(m.rc,1)+"원 × "+m.D+"일 = <em>"+nf(m.C)+"원</em></div>"]);
 
-    var aR = rnd(m.A);
-    box.appendChild(ansCard({
-      no:"1", cls: m.down ? "neg" : "",
-      title: m.down ? "만료일 그대로 두고 등급 내리기 (환불)" : "만료일 그대로 두고 등급만 올리기",
-      amount: aR, exact: m.A,
-      why: m.down
-        ? "남은 <b>" + m.D + "일</b>치 차액을 <b>돌려주는</b> 금액이다. 만료일은 " + fmtD(oldExp) + " 그대로."
-        : "남은 <b>" + m.D + "일</b>치 차액만 받는다. 만료일은 <b>" + fmtD(oldExp) + "</b> 그대로.",
-      then: "→ " + korD(oldExp) + " 갱신 때 " + nn + " 1년 <b>" + nf(m.dPn) + "원</b>을 따로 받으면 된다."
-    }));
+    S.push(["4","두 가지 방법 중에서 정합니다",
+      "<p><b>1안 — 만료일을 그대로 두는 경우</b><br>"+
+      "남은 "+m.D+"일에 대해 1일 차액만 받습니다. 만료일은 "+fmtD(oldExp)+" 그대로이고, 그날 정상 요금으로 갱신합니다.</p>"+
+      '<div class="calc">'+nf(m.rd,1)+"원 × "+m.D+"일 = "+nf(m.A,2)+"원 → <em>"+nf(aR)+"원</em></div>"+
+      (m.down ? "" :
+      "<p style=\"margin-top:12px\"><b>2안 — 오늘부터 1년을 새로 시작하는 경우</b><br>"+
+      nn+" 1년 정가에서, 아직 제공하지 않은 "+cn+" "+m.D+"일분을 빼 드립니다. 만료일은 "+fmtD(newExp)+"로 "+extend+"일 늘어납니다.</p>"+
+      '<div class="calc">'+nf(m.dPn)+" − "+nf(m.C)+" = "+nf(m.B,2)+"원 → <em>"+nf(bR)+"원</em></div>")]);
 
-    var bR = rnd(m.B);
-    if(!m.down){
-      box.appendChild(ansCard({
-        no:"2", cls:"b",
-        title:"오늘부터 " + nn + " 1년으로 새로 시작",
-        amount: bR, exact: m.B,
-        why: "정가 <b>" + nf(m.dPn) + "원</b>에서 안 쓴 " + m.D + "일치 <b>" + nf(m.C) + "원</b>을 빼줬다. " +
-             "만료일이 <b>" + fmtD(newExp) + "</b>로 바뀐다 (" + extend + "일 연장).",
-        then: "→ 남은 " + m.D + "일치를 안 빼줄 거면 그냥 <b>" + nf(m.dPn) + "원</b>."
-      }));
-    }
+    el("steps").innerHTML = S.map(function(s){
+      return '<div class="step"><div class="sno">'+s[0]+'</div><div class="sbody"><h4>'+esc(s[1])+'</h4>'+s[2]+'</div></div>';
+    }).join("");
+  }
 
-    var w = el("warn");
-    if(!m.down && !m.same && m.U > 0 && m.D > 0){
-      w.hidden = false;
-      el("warnH").textContent = "왜 " + nf(m.W) + "원이 아닌가";
-      el("warnLead").innerHTML =
-        "<span class=\"n\">" + nf(m.dPn) + " − " + nf(m.dPc) + " = " + nf(m.W) + "원</span> — " +
-        "이 뺄셈은 <b>1년 내내</b> " + nn + "을 쓸 때의 차액이다. " +
-        "그런데 이 고객한테 남은 계약은 <b>" + m.D + "일</b>뿐이다.";
-
-      el("wsegUsed").style.flex = m.U + " 1 0";
-      el("wsegLeft").style.flex = m.D + " 1 0";
-      el("wsegUsed").textContent = m.U + "일 씀";
-      el("wsegLeft").textContent = m.D + "일 남음";
-      el("wcolUsed").style.flex = m.U + " 1 0";
-      el("wcolLeft").style.flex = m.D + " 1 0";
-      el("wcolUsed").innerHTML = "<b>이미 쓴 " + m.U + "일</b>" + cn + "으로 이미 다 썼다. 되돌려 줄 게 없다.";
-      el("wcolLeft").innerHTML = "<b>남은 " + m.D + "일</b>" + cn + " 요금 <span class=\"n\">" + nf(m.C) + "원</span>이 아직 안 쓰였다. 빼줄 수 있는 건 이것뿐이다.";
-
-      el("wcaseTitle").textContent = nf(m.W) + "원을 받으면 이렇게 어긋난다";
-      el("wk1").textContent = "1년을 주는 경우";
-      el("wv1").innerHTML =
-        "받아야 할 돈은 <span class=\"n\">" + nf(bR) + "원</span> → <em>" + nf(Math.round(m.loss)) + "원 손해</em>" +
-        "<br><span class=\"wsub\">이미 다 써버린 " + m.U + "일치 " + cn + " 요금까지 깎아준 셈</span>";
-      el("wk2").textContent = "만료일 그대로 두는 경우";
-      el("wv2").innerHTML =
-        "받아야 할 돈은 <span class=\"n\">" + nf(aR) + "원</span> → <em>고객이 " + nf(Math.round(m.W - m.A)) + "원 더 냄</em>" +
-        "<br><span class=\"wsub\">게다가 " + m.D + "일 뒤 갱신 때 " + nf(m.dPn) + "원을 또 청구하게 된다</span>";
-    } else { w.hidden = true; }
-
-    renderDetail(m, oldExp, newExp, extend, cn, nn, aR, bR);
-
-    // 역산 (표시 기준 그대로)
-    if(!state.revTouched){ state.revAmt = Math.max(0, rnd(m.W)); el("revAmt").value = nf(state.revAmt); }
-    var D2 = m.dPn > 0 ? (state.revAmt + m.C) * T / m.dPn : 0;
-    el("revOut").innerHTML =
-      "→ <b>" + D2.toFixed(0) + "일</b> (약 " + mo(D2) + "개월) · 만료일 <b>" + fmtD(addDays(t0, Math.round(D2))) + "</b>";
-    el("revEq").textContent =
-      "[" + vatWord() + " 기준]\n(받을 금액 + 안 쓴 크레딧) ÷ 하루 요금\n= (" +
-      nf(state.revAmt) + " + " + nf(m.C,2) + ") ÷ " + nf(m.dPn/T,2) + "\n= " + D2.toFixed(1) + "일";
-
-    // 고객 문구
-    var L = [];
-    L.push("안녕하세요. 호스팅 등급 변경 관련하여 안내드립니다.");
-    L.push("");
-    L.push("■ 현재 이용중인 상품");
-    L.push("   " + cn + "  (1년 " + nf(m.dPc) + "원)");
-    L.push("   만료일 " + fullD(oldExp) + " · 잔여 " + m.D + "일");
-    L.push("");
-    if(m.down){
-      L.push("■ " + nn + "으로 하향 변경 시");
-      L.push("");
-      L.push("   환불 금액   " + nf(Math.abs(aR)) + "원");
-      L.push("   만료일      " + fullD(oldExp) + " (변동 없음)");
-      L.push("");
-      L.push("   남은 " + m.D + "일에 대한 요금 차액을 환불해 드립니다.");
-    } else {
-      L.push("■ " + nn + "으로 변경하실 경우 두 가지 방법이 있습니다.");
-      L.push("");
-      L.push("");
-      L.push("[1안] 만료일은 그대로 두고 등급만 올리기");
-      L.push("");
-      L.push("   결제 금액   " + nf(aR) + "원");
-      L.push("   이용 기간   오늘 ~ " + fullD(oldExp) + " (" + m.D + "일)");
-      L.push("   만료일      " + fullD(oldExp) + " (변동 없음)");
-      L.push("");
-      L.push("   남은 " + m.D + "일에 대한 차액만 결제하시는 방식입니다.");
-      L.push("   " + fullD(oldExp) + " 갱신 시 " + nn + " 1년 요금 " + nf(m.dPn) + "원이");
-      L.push("   정상 청구됩니다.");
-      L.push("");
-      L.push("");
-      L.push("[2안] 오늘부터 " + nn + " 1년으로 새로 시작");
-      L.push("");
-      L.push("   결제 금액   " + nf(bR) + "원");
-      L.push("   이용 기간   오늘 ~ " + fullD(newExp) + " (1년)");
-      L.push("   만료일      " + fullD(newExp) + " (기존 대비 " + extend + "일 연장)");
-      L.push("");
-      L.push("   " + nn + " 1년 요금 " + nf(m.dPn) + "원에서");
-      L.push("   아직 사용하지 않은 " + m.D + "일분 " + nf(Math.round(m.C)) + "원을 차감한 금액입니다.");
-    }
-    L.push("");
-    L.push("");
-    L.push("※ 모든 금액은 " + vatWord() + " 기준입니다.");
-    el("sumbox").textContent = L.join("\n");
+  /* ── 자주 하는 실수 ── */
+  function renderWarn(m, cn, nn, aR, bR){
+    var w=el("warn");
+    if(m.down || m.same || m.U<=0 || m.D<=0){ w.hidden=true; return; }
+    w.hidden=false;
+    el("warnH").textContent="자주 하는 실수 — 두 요금을 그대로 빼는 경우";
+    el("warnP1").innerHTML=
+      '<span class="n">'+nf(m.dPn)+" − "+nf(m.dPc)+" = "+nf(m.W)+"원</span>";
+    el("warnP2").innerHTML=
+      "여기서 뺀 <span class=\"n\">"+nf(m.dPc)+"원</span>은 "+cn+" <b>365일분</b> 요금입니다. "+
+      "그러나 이 고객에게 남은 것은 <b>"+m.D+"일분("+nf(m.C)+"원)</b>뿐입니다. "+
+      "이미 제공이 끝난 "+m.U+"일분까지 차감한 금액이 됩니다.";
+    el("warnTable").innerHTML=
+      '<div class="wr"><div class="wk">차감한 금액 ('+cn+' 365일분)</div><div class="wv">'+nf(m.dPc)+'원</div></div>'+
+      '<div class="wr"><div class="wk">차감 가능한 금액 (남은 '+m.D+'일분)</div><div class="wv">'+nf(m.C)+'원</div></div>'+
+      '<div class="wr tot"><div class="wk">차이</div><div class="wv">'+nf(Math.round(m.loss))+'원</div>'+
+        '<div class="wn">이미 제공이 끝난 '+m.U+'일분 요금까지 차감된 금액입니다.</div></div>'+
+      '<div class="wr"><div class="wk">1년을 제공하는 경우 받아야 할 금액</div><div class="wv">'+nf(bR)+'원 <span style="color:var(--ink-3)">(2안)</span></div></div>'+
+      '<div class="wr"><div class="wk">만료일을 유지하는 경우 받아야 할 금액</div><div class="wv">'+nf(aR)+'원 <span style="color:var(--ink-3)">(1안)</span></div></div>';
   }
 
   function wtab(rows){
     var s='<div class="dscroll"><table class="wtab">';
     rows.forEach(function(r){
-      s += '<tr'+(r[3]?' class="s"':'')+'><td class="k">'+r[0]+'</td><td class="e">'+(r[1]||"")+'</td><td class="v">'+r[2]+'</td></tr>';
+      s+='<tr'+(r[3]?' class="s"':'')+'><td class="k">'+r[0]+'</td><td class="e">'+(r[1]||"")+'</td><td class="v">'+r[2]+'</td></tr>';
     });
     return s+'</table></div>';
   }
 
-  function renderDetail(m, oldExp, newExp, extend, cn, nn, aR, bR){
-    var h = "";
-    h += '<div class="dh">가격표 (' + vatWord() + ' 기준)</div>';
-    h += wtab(state.plans.map(function(p){
-      return [p.name,
-              state.vat ? (nf(Math.round(p.price/VAT)) + " × 1.1") : (nf(p.price) + " ÷ 1.1"),
-              nf(w1(p.price)) + "원"];
+  function renderDetail(m, newExp, extend, cn, nn, aR, bR){
+    var h="";
+    h+='<div class="dh">가격표 ('+vatWord()+' 기준)</div>';
+    h+=wtab(state.plans.map(function(p){
+      return [esc(p.name),
+        state.vat ? (nf(Math.round(p.price/VAT))+" × 1.1") : (nf(p.price)+" ÷ 1.1"),
+        nf(w1(p.price))+"원"];
     }));
 
-    h += '<div class="dh">1. 만료일 유지 · 등급만 상향</div>';
-    h += wtab([
-      ["하루당 차액", "(" + nf(m.dPn) + " − " + nf(m.dPc) + ") ÷ 365", nf((m.dPn-m.dPc)/T,2) + "원"],
-      ["× 남은 " + m.D + "일", nf((m.dPn-m.dPc)/T,2) + " × " + m.D, nf(m.A,2) + "원"],
-      ["청구액", "1,000원 반올림", nf(aR) + "원", 1],
-      ["└ 부가세", "", vatSplit(aR)]
+    h+='<div class="dh">1일 이용료</div>';
+    h+=wtab([
+      [esc(cn), nf(m.dPc)+" ÷ 365", nf(m.rc,2)+"원"],
+      [esc(nn), nf(m.dPn)+" ÷ 365", nf(m.rn,2)+"원"],
+      ["차액", nf(m.rn,2)+" − "+nf(m.rc,2), nf(m.rd,2)+"원", 1]
+    ]);
+
+    h+='<div class="dh">1안 · 만료일 유지</div>';
+    h+=wtab([
+      ["1일 차액 × 남은 일수", nf(m.rd,2)+" × "+m.D, nf(m.A,2)+"원"],
+      ["청구액", "1,000원 반올림", nf(aR)+"원", 1],
+      ["부가세 구분", "", vatSplit(aR)]
     ]);
 
     if(!m.down){
-      h += '<div class="dh">2. 오늘부터 1년 신규</div>';
-      h += wtab([
-        [nn + " 1년 정가", "", nf(m.dPn) + "원"],
-        ["− 안 쓴 크레딧", nf(m.dPc) + " ÷ 365 × " + m.D, "−" + nf(m.C,2) + "원"],
-        ["청구액", "1,000원 반올림", nf(bR) + "원", 1],
-        ["└ 부가세", "", vatSplit(bR)],
-        ["새 만료일", "오늘 + 1년", fmtD(newExp) + " (+" + extend + "일)"]
+      h+='<div class="dh">2안 · 오늘부터 1년 신규</div>';
+      h+=wtab([
+        [esc(nn)+" 1년 정가", "", nf(m.dPn)+"원"],
+        ["남은 "+m.D+"일분 차감", nf(m.rc,2)+" × "+m.D, "−"+nf(m.C,2)+"원"],
+        ["청구액", "1,000원 반올림", nf(bR)+"원", 1],
+        ["부가세 구분", "", vatSplit(bR)],
+        ["새 만료일", "오늘 + 1년", fmtD(newExp)+" (+"+extend+"일)"]
       ]);
 
-      h += '<div class="dh">전액 차감(오답)과의 차이</div>';
-      h += wtab([
-        ["오답", nf(m.dPn) + " − " + nf(m.dPc), nf(m.W) + "원"],
-        ["정답 2", "", nf(m.B,2) + "원"],
-        ["차이 = 손해", nf(m.dPc) + " ÷ 365 × " + m.U + "일", nf(m.loss,2) + "원", 1]
+      h+='<div class="dh">두 요금을 그대로 뺀 경우와의 차이</div>';
+      h+=wtab([
+        ["그대로 뺀 금액", nf(m.dPn)+" − "+nf(m.dPc), nf(m.W)+"원"],
+        ["2안 정산액", "", nf(m.B,2)+"원"],
+        ["차이", nf(m.rc,2)+" × "+m.U+"일", nf(m.loss,2)+"원", 1]
       ]);
     }
 
-    h += '<div class="dh">공식</div>';
-    h += '<pre class="formula">' +
-      "Pc = 지금 등급 1년가      Pn = 바꿀 등급 1년가   (화면 표시 기준)\n" +
-      "T  = 365일               D  = 남은 일수      U = 365 − D\n" +
-      "C  = Pc × D ÷ T          (안 쓴 크레딧)\n\n" +
-      "1.  (Pn − Pc) × D ÷ T\n" +
-      "2.  Pn − C\n" +
-      "역산  D′ = (받을금액 + C) × T ÷ Pn\n\n" +
-      "2 = 1 + Pn × U ÷ T         ← 남은 기간은 차액, 신규 기간은 정가\n" +
-      "2 − (Pn − Pc) = Pc × U ÷ T ← 전액 차감 시 손해액\n\n" +
-      "부가세 포함가 = 공급가 × 1.1      공급가 = 부가세 포함가 ÷ 1.1" +
+    h+='<div class="dh">공식</div>';
+    h+='<pre class="formula">'+
+      "Pc = 현재 등급 1년 요금     Pn = 변경 등급 1년 요금   (화면 표시 기준)\n"+
+      "T  = 365일                D  = 남은 일수       U = 365 − D\n"+
+      "C  = Pc × D ÷ T           (남은 기간 요금 = 차감 가능액)\n\n"+
+      "1안   (Pn − Pc) × D ÷ T\n"+
+      "2안   Pn − C\n"+
+      "역산   D′ = (받을 금액 + C) × T ÷ Pn\n\n"+
+      "2안 = 1안 + Pn × U ÷ T          남은 기간은 차액, 신규 기간은 정가\n"+
+      "2안 − (Pn − Pc) = Pc × U ÷ T    두 요금을 그대로 뺐을 때의 차이\n\n"+
+      "부가세 포함가 = 공급가 × 1.1       공급가 = 부가세 포함가 ÷ 1.1"+
       '</pre>';
-
-    el("detail").innerHTML = h;
+    el("detail").innerHTML=h;
   }
 
-  el("cur").addEventListener("change", function(){ state.cur=+this.value; state.revTouched=false; render(); });
-  el("nxt").addEventListener("change", function(){ state.nxt=+this.value; state.revTouched=false; render(); });
-  el("exp").addEventListener("change", function(){
+  function renderSummary(m, oldExp, newExp, extend, cn, nn, aR, bR){
+    var L=[];
+    L.push("안녕하세요. 호스팅 등급 변경 관련하여 안내드립니다.");
+    L.push("");
+    L.push("■ 현재 이용 내역");
+    L.push("   "+cn+"  (1년 "+nf(m.dPc)+"원)");
+    L.push("   만료일 "+fullD(oldExp)+" · 잔여 "+m.D+"일");
+    L.push("");
+    if(m.down){
+      L.push("■ "+nn+"으로 하향 변경 시");
+      L.push("");
+      L.push("   환불 금액   "+nf(Math.abs(aR))+"원");
+      L.push("   만료일      "+fullD(oldExp)+" (변동 없음)");
+      L.push("");
+      L.push("   남은 "+m.D+"일에 해당하는 요금 차액을 환불해 드립니다.");
+    } else {
+      L.push("■ "+nn+"으로 변경 시 두 가지 방법이 있습니다.");
+      L.push("");
+      L.push("");
+      L.push("[1안] 만료일을 유지하고 등급만 상향");
+      L.push("");
+      L.push("   결제 금액   "+nf(aR)+"원");
+      L.push("   이용 기간   오늘 ~ "+fullD(oldExp)+" ("+m.D+"일)");
+      L.push("   만료일      "+fullD(oldExp)+" (변동 없음)");
+      L.push("");
+      L.push("   남은 "+m.D+"일에 대한 요금 차액만 결제하시는 방식입니다.");
+      L.push("   "+fullD(oldExp)+" 갱신 시 "+nn+" 1년 요금 "+nf(m.dPn)+"원이");
+      L.push("   정상 청구됩니다.");
+      L.push("");
+      L.push("");
+      L.push("[2안] 오늘부터 "+nn+" 1년으로 신규 시작");
+      L.push("");
+      L.push("   결제 금액   "+nf(bR)+"원");
+      L.push("   이용 기간   오늘 ~ "+fullD(newExp)+" (1년)");
+      L.push("   만료일      "+fullD(newExp)+" (기존 대비 "+extend+"일 연장)");
+      L.push("");
+      L.push("   "+nn+" 1년 요금 "+nf(m.dPn)+"원에서 아직 사용하지 않으신");
+      L.push("   "+m.D+"일분 "+nf(Math.round(m.C))+"원을 차감한 금액입니다.");
+    }
+    L.push("");
+    L.push("");
+    L.push("※ 모든 금액은 "+vatWord()+" 기준입니다.");
+    el("sumbox").textContent=L.join("\n");
+  }
+
+  el("cur").addEventListener("change",function(){ state.cur=+this.value; state.revTouched=false; render(); });
+  el("nxt").addEventListener("change",function(){ state.nxt=+this.value; state.revTouched=false; render(); });
+  el("exp").addEventListener("change",function(){
     if(!this.value) return;
     var p=this.value.split("-");
-    var d=new Date(+p[0], +p[1]-1, +p[2]); d.setHours(0,0,0,0);
-    state.days = Math.max(0, Math.round((d - today())/DAY));
+    var d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0);
+    state.days=Math.max(0,Math.round((d-today())/DAY));
     state.revTouched=false; render();
   });
-  el("vatChk").addEventListener("change", function(){
-    state.vat = this.checked; state.revTouched = false;
+  el("vatChk").addEventListener("change",function(){
+    state.vat=this.checked; state.revTouched=false;
     buildSelects(); buildPlans(); render(); persist();
   });
-  el("revAmt").addEventListener("input", function(){
-    state.revTouched=true; state.revAmt=digits(this.value); render();
-  });
-  el("revAmt").addEventListener("blur", function(){ this.value = nf(state.revAmt); });
-  el("addPlan").addEventListener("click", function(){
-    state.plans.push({name:"새 상품", price:0, note:""});
+  el("revAmt").addEventListener("input",function(){ state.revTouched=true; state.revAmt=digits(this.value); render(); });
+  el("revAmt").addEventListener("blur",function(){ this.value=nf(state.revAmt); });
+  el("addPlan").addEventListener("click",function(){
+    state.plans.push({name:"새 상품",price:0,note:""});
     buildSelects(); buildPlans(); render(); persist();
   });
-  el("resetPlans").addEventListener("click", function(){
-    state.plans = JSON.parse(JSON.stringify(DEFAULT_PLANS));
+  el("resetPlans").addEventListener("click",function(){
+    state.plans=JSON.parse(JSON.stringify(DEFAULT_PLANS));
     clamp(); buildSelects(); buildPlans(); render(); persist();
   });
-  el("copyBtn").addEventListener("click", function(){
-    var txt = el("sumbox").textContent;
-    var done = function(ok){
-      el("copyMsg").textContent = ok ? "복사됐다" : "복사 안 됨 — 위 박스를 직접 선택해서 복사";
-      setTimeout(function(){ el("copyMsg").textContent=""; }, 2600);
+  el("copyBtn").addEventListener("click",function(){
+    var txt=el("sumbox").textContent;
+    var done=function(ok){
+      el("copyMsg").textContent=ok?"복사되었습니다":"복사에 실패했습니다. 위 내용을 직접 선택해 복사해 주세요";
+      setTimeout(function(){ el("copyMsg").textContent=""; },2600);
     };
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(txt).then(function(){done(true);}, function(){done(false);});
-    } else { done(false); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){done(true);},function(){done(false);});
+    } else done(false);
   });
 
-  var saved = loadLocal();
+  var saved=loadLocal();
   state.plans = saved ? saved.plans : JSON.parse(JSON.stringify(DEFAULT_PLANS));
-  state.vat = (saved && saved.vat !== undefined) ? !!saved.vat : true;
+  state.vat = (saved && saved.vat!==undefined) ? !!saved.vat : true;
   clamp();
-  el("vatChk").checked = state.vat;
+  el("vatChk").checked=state.vat;
   buildSelects();
   buildPlans();
-  el("exp").value = fmtD(addDays(today(), state.days));
+  el("exp").value=fmtD(addDays(today(),state.days));
   render();
   initDb();
 })();
