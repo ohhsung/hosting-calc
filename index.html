@@ -184,9 +184,13 @@ summary:hover{color:var(--ink)}
 .rev label.f{flex:0 0 210px}
 .revout{flex:1 1 240px;font-size:15.5px;color:var(--ink-2);min-width:0}
 .revout b{color:var(--accent);font-weight:600;font-family:var(--mono);font-variant-numeric:tabular-nums}
-.sumbox{font-family:var(--mono);font-size:13px;line-height:1.95;white-space:pre-wrap;word-break:break-word;
-        border-left:2px solid var(--line);padding:2px 0 2px 16px;color:var(--ink);
-        font-variant-numeric:tabular-nums;user-select:all}
+/* 고객 안내문 — 바탕색으로 구역 분리, 안쪽엔 테두리 없음 */
+.sec.doc{background:var(--field);border-bottom:1px solid var(--line)}
+.doc .bh{align-items:center;margin-bottom:14px}
+.doc .sp{flex:1 1 auto}
+.doc .bh button{flex:0 0 auto}
+.sumbox{font-family:var(--mono);font-size:13px;line-height:1.85;white-space:pre-wrap;word-break:break-word;
+        color:var(--ink);margin:0;font-variant-numeric:tabular-nums;user-select:all}
 
 button{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--ink);background:var(--field);
        border:1px solid var(--line);padding:8px 15px;cursor:pointer;border-radius:0}
@@ -273,13 +277,15 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     </div>
   </section>
 
-  <section class="sec">
-    <div class="bh"><h2>고객 안내문</h2><span class="hint">그대로 복사해서 보내면 됩니다</span></div>
-    <div class="sumbox" id="sumbox"></div>
-    <div class="row">
-      <button class="pri" id="copyBtn">복사</button>
+  <section class="sec doc">
+    <div class="bh">
+      <h2>고객 안내문</h2>
+      <span class="hint">그대로 복사해서 보내면 됩니다</span>
+      <span class="sp"></span>
       <span class="msg" id="copyMsg"></span>
+      <button class="pri" id="copyBtn">복사</button>
     </div>
+    <div class="sumbox" id="sumbox"></div>
   </section>
 
   <section class="sec">
@@ -704,7 +710,6 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     } else {
       L.push("■ "+nn+"으로 변경 시 두 가지 방법이 있습니다.");
       L.push("");
-      L.push("");
       L.push("[1안] 만료일을 유지하고 등급만 상향");
       L.push("");
       L.push("   결제 금액   "+nf(aR)+"원");
@@ -715,7 +720,6 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
       L.push("   "+fullD(oldExp)+" 갱신 시 "+nn+" 1년 요금 "+nf(m.dPn)+"원이");
       L.push("   정상 청구됩니다.");
       L.push("");
-      L.push("");
       L.push("[2안] 오늘부터 "+nn+" 1년으로 신규 시작");
       L.push("");
       L.push("   결제 금액   "+nf(bR)+"원");
@@ -725,7 +729,6 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
       L.push("   "+nn+" 1년 요금 "+nf(m.dPn)+"원에서 아직 사용하지 않으신");
       L.push("   "+m.D+"일분 "+nf(Math.round(m.C))+"원을 차감한 금액입니다.");
     }
-    L.push("");
     L.push("");
     L.push("※ 모든 금액은 "+vatWord()+" 기준입니다.");
     el("sumbox").textContent=L.join("\n");
