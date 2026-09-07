@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="호스팅 등급 변경 시 받을 금액을 잔여기간 기준으로 계산한다. 가격표 직접 수정 가능.">
+<title>호스팅 등급변경 정산기</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%A7%AE%3C/text%3E%3C/svg%3E">
+<style>
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none !important}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#F2F3F7; --surface:#FFFFFF; --soft:#F6F7FB; --soft-2:#EAECF3;
+  --ink:#15171F; --ink-2:#5C6376; --ink-3:#949AAC;
+  --line:#E2E5EE; --line-2:#EDEFF5;
+  --accent:#2E2AC0; --accent-2:#5B57E8; --accent-soft:#ECEBFC;
+  --warn:#8A3B06; --warn-soft:#FCF1E6; --warn-line:#EBD3B9;
+  --neg:#A81C39;
+  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#0E0F15; --surface:#171924; --soft:#1C1F2A; --soft-2:#242833;
+    --ink:#EDEEF4; --ink-2:#A8AEC0; --ink-3:#787F96;
+    --line:#282C3A; --line-2:#212533;
+    --accent:#918DFF; --accent-2:#ADAAFF; --accent-soft:#22224A;
+    --warn:#EFA76D; --warn-soft:#2E1F10; --warn-line:#4C3419;
+    --neg:#FF7C93;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0E0F15; --surface:#171924; --soft:#1C1F2A; --soft-2:#242833;
+  --ink:#EDEEF4; --ink-2:#A8AEC0; --ink-3:#787F96;
+  --line:#282C3A; --line-2:#212533;
+  --accent:#918DFF; --accent-2:#ADAAFF; --accent-soft:#22224A;
+  --warn:#EFA76D; --warn-soft:#2E1F10; --warn-line:#4C3419;
+  --neg:#FF7C93;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.page{max-width:760px;margin:0 auto;padding:44px 20px 90px;display:flex;flex-direction:column;gap:30px}
+
+h1{font-size:27px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance}
+.lede{margin:0;color:var(--ink-2);font-size:15px;max-width:46ch}
+
+.block{background:var(--surface);border:1px solid var(--line);padding:26px 26px 24px}
+.block > h2{font-size:13px;font-weight:600;margin:0 0 18px;color:var(--ink-3);
+            letter-spacing:.1em;text-transform:uppercase;font-family:var(--mono)}
+
+/* 가격표 */
+.plan{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line-2);flex-wrap:wrap}
+.plan:last-of-type{border-bottom:none}
+.plan .pname{flex:0 0 110px;min-width:0}
+.plan .pprice{flex:0 0 150px;position:relative}
+.plan .pnote{flex:1 1 180px;min-width:0}
+.plan .pdel{flex:0 0 auto}
+.won{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--ink-3);font-size:14px;pointer-events:none}
+
+input,select{font-family:var(--sans);font-size:16px;color:var(--ink);background:var(--soft);
+  border:1px solid var(--line);padding:11px 13px;width:100%;border-radius:0;appearance:none}
+input.money{font-family:var(--mono);font-size:17px;font-weight:500;text-align:right;
+            padding-right:34px;font-variant-numeric:tabular-nums}
+input.small{font-size:14px;padding:9px 12px;background:transparent;border-color:transparent}
+input.small:hover{border-color:var(--line);background:var(--soft)}
+input[type=date]{font-family:var(--mono);font-size:15px}
+select{cursor:pointer;font-weight:500}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* 상황 */
+.situ{display:flex;flex-wrap:wrap;gap:18px}
+.f{display:flex;flex-direction:column;gap:7px;flex:1 1 190px;min-width:0}
+.f > span{font-size:13.5px;color:var(--ink-2);font-weight:500}
+.remain{margin:18px 0 0;padding-top:16px;border-top:1px solid var(--line-2);
+        font-size:15px;color:var(--ink-2)}
+.remain b{color:var(--ink);font-weight:600;font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* 답 */
+.answers{display:flex;flex-direction:column;gap:16px}
+.ans{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--accent);
+     padding:24px 26px}
+.ans.b{border-left-color:var(--accent-2)}
+.ans.neg{border-left-color:var(--neg)}
+.ans .no{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.05em}
+.ans.neg .no{color:var(--neg)}
+.ans h3{font-size:18px;font-weight:600;margin:2px 0 14px;letter-spacing:-.015em;text-wrap:balance}
+.big{font-family:var(--mono);font-size:42px;font-weight:600;letter-spacing:-.035em;margin:0;
+     line-height:1.05;font-variant-numeric:tabular-nums;word-break:keep-all}
+.big span{font-size:21px;font-weight:500;color:var(--ink-2);margin-left:3px}
+.ans.neg .big{color:var(--neg)}
+.why{margin:14px 0 0;font-size:15px;color:var(--ink-2);line-height:1.75}
+.why b{color:var(--ink);font-weight:600}
+.then{margin:12px 0 0;padding-top:12px;border-top:1px solid var(--line-2);
+      font-size:14px;color:var(--ink-3)}
+.then b{color:var(--ink-2);font-weight:500}
+
+/* 경고 */
+.warn{background:var(--warn-soft);border:1px solid var(--warn-line);border-left:5px solid var(--warn);
+      padding:22px 26px}
+.warn h3{font-size:16px;font-weight:600;margin:0 0 10px;color:var(--warn)}
+.warn p{margin:0;font-size:15px;line-height:1.8;color:var(--ink)}
+.warn p + p{margin-top:9px}
+.warn b{font-weight:600}
+.n{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:500}
+
+/* 자세히 */
+details{background:var(--surface);border:1px solid var(--line)}
+summary{padding:17px 26px;cursor:pointer;font-size:14.5px;font-weight:500;color:var(--ink-2);
+        list-style:none;display:flex;align-items:center;gap:9px}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸";font-family:var(--mono);color:var(--ink-3);font-size:13px}
+details[open] summary::before{content:"▾"}
+summary:hover{color:var(--ink)}
+.dbody{padding:4px 26px 26px;border-top:1px solid var(--line-2);margin-top:-1px}
+.dh{font-size:13px;font-weight:600;color:var(--ink-3);margin:22px 0 8px;
+    font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.dh:first-child{margin-top:20px}
+.wtab{width:100%;border-collapse:collapse;font-size:13.5px}
+.wtab td{padding:8px 0;border-bottom:1px solid var(--line-2);vertical-align:baseline}
+.wtab tr:last-child td{border-bottom:none}
+.wtab td.k{color:var(--ink-3);white-space:nowrap;padding-right:14px;width:1%}
+.wtab td.e{font-family:var(--mono);color:var(--ink-2);padding-right:14px;font-size:12.5px}
+.wtab td.v{font-family:var(--mono);text-align:right;white-space:nowrap;font-weight:500;
+           font-variant-numeric:tabular-nums}
+.wtab tr.s td{border-top:1px solid var(--line);font-weight:600}
+.wtab tr.s td.v{color:var(--accent)}
+.dscroll{overflow-x:auto}
+.formula{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:2;
+         background:var(--soft);padding:14px 16px;overflow-x:auto;white-space:pre;margin:0}
+
+/* 역산 */
+.rev{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.rev .f{flex:0 0 175px}
+.revout{flex:1 1 240px;font-size:16px;color:var(--ink-2);min-width:0}
+.revout b{color:var(--accent);font-weight:600;font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* 문구 */
+.sumbox{font-family:var(--mono);font-size:13.5px;line-height:2;white-space:pre-wrap;word-break:break-word;
+        background:var(--soft);border:1px solid var(--line);padding:18px 20px;color:var(--ink);
+        font-variant-numeric:tabular-nums;user-select:all}
+
+button{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--ink);background:var(--soft);
+       border:1px solid var(--line);padding:9px 16px;cursor:pointer;border-radius:0}
+button:hover{background:var(--soft-2);border-color:var(--ink-3)}
+button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+button.pri:hover{background:var(--accent-2);border-color:var(--accent-2)}
+button.ghost{background:transparent;border-color:transparent;color:var(--ink-3);padding:9px 4px;text-decoration:underline}
+button.ghost:hover{color:var(--ink);background:transparent}
+button.x{padding:7px 11px;color:var(--ink-3);font-family:var(--mono);background:transparent;border-color:transparent}
+button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.chk{display:inline-flex;align-items:center;gap:9px;font-size:14px;color:var(--ink-2);cursor:pointer}
+.chk input{width:17px;height:17px;accent-color:var(--accent);cursor:pointer;padding:0}
+.msg{font-size:14px;color:var(--ink-3)}
+.foot{font-size:13px;color:var(--ink-3);line-height:1.9;text-align:center}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+<main class="page">
+
+  <header>
+    <h1>등급 바꿀 때 얼마 받나</h1>
+    <p class="lede">차액은 <b>남은 기간</b>에만 붙는다. 이미 쓴 기간은 빼주는 게 아니다.</p>
+  </header>
+
+  <section class="block">
+    <h2>가격표 — 직접 고치면 됨</h2>
+    <div id="plans"></div>
+    <div class="row">
+      <button id="addPlan">+ 상품 추가</button>
+      <label class="chk"><input type="checkbox" id="vatChk"><span>부가세 포함 가격</span></label>
+      <button class="ghost" id="resetPlans">기본값으로</button>
+      <span class="msg" id="sync"></span>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>지금 상황</h2>
+    <div class="situ">
+      <label class="f"><span>지금 쓰는 등급</span><select id="cur"></select></label>
+      <label class="f"><span>바꿀 등급</span><select id="nxt"></select></label>
+      <label class="f"><span>지금 만료일</span><input type="date" id="exp"></label>
+    </div>
+    <p class="remain" id="remain"></p>
+  </section>
+
+  <div class="answers" id="answers"></div>
+
+  <div class="warn" id="warn" hidden>
+    <h3 id="warnH"></h3>
+    <p id="warnA"></p>
+    <p id="warnB"></p>
+  </div>
+
+  <details>
+    <summary>계산식 자세히 보기</summary>
+    <div class="dbody" id="detail"></div>
+  </details>
+
+  <details>
+    <summary>이 금액 받으면 며칠 줘야 하나 (역산)</summary>
+    <div class="dbody">
+      <div class="rev" style="margin-top:20px">
+        <label class="f"><span>받을 금액</span><input type="text" class="money" id="revAmt" inputmode="numeric"><span class="won" style="top:auto;bottom:13px">원</span></label>
+        <div class="revout" id="revOut"></div>
+      </div>
+      <p class="formula" id="revEq" style="margin-top:16px"></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>고객한테 보낼 문구</summary>
+    <div class="dbody">
+      <div class="sumbox" id="sumbox" style="margin-top:20px"></div>
+      <div class="row">
+        <button class="pri" id="copyBtn">복사</button>
+        <span class="msg" id="copyMsg"></span>
+      </div>
+    </div>
+  </details>
+
+  <p class="foot">금액은 1,000원 단위로 반올림해서 보여준다.<br>정확한 값은 «계산식 자세히 보기» 안에 있다.</p>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var T = 365, DAY = 86400000, UNIT = 1000;
+
+  var DEFAULTS = {
+    vat: true,
+    plans: [
+      { name:"플러스", price:330000,  note:"하루 방문자 200~250명" },
+      { name:"확장형", price:550000,  note:"하루 방문자 500명 이상" },
+      { name:"무제한", price:1320000, note:"방문자 유입 무제한" }
+    ]
+  };
+
+  var state = { plans:null, vat:true, cur:0, nxt:2, days:92, revTouched:false, revAmt:0 };
+
+  function nf(n,d){ return Number(n).toLocaleString("ko-KR",{maximumFractionDigits: d===undefined?0:d}); }
+  function won(n){ return nf(Math.round(n))+"원"; }
+  function won2(n){ return nf(n,2)+"원"; }
+  function digits(s){ var m=String(s).replace(/[^0-9]/g,""); return m==="" ? 0 : parseInt(m,10); }
+  function rnd(v){ return Math.round(v/UNIT)*UNIT; }
+  function today(){ var d=new Date(); d.setHours(0,0,0,0); return d; }
+  function fmtD(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  function korD(d){ return (d.getMonth()+1)+"월 "+d.getDate()+"일"; }
+  function addDays(d,n){ var x=new Date(d.getTime()); x.setDate(x.getDate()+n); return x; }
+  function mo(days){ return (days/30.4375).toFixed(1); }
+  function el(id){ return document.getElementById(id); }
+
+  var LS = "hosting-proration-v2", dbRef = null, saveTimer = null;
+
+  function loadLocal(){
+    try{ var r=localStorage.getItem(LS);
+      if(r){ var d=JSON.parse(r); if(d && d.plans && d.plans.length) return d; }
+    }catch(e){}
+    return null;
+  }
+  function saveLocal(){
+    try{ localStorage.setItem(LS, JSON.stringify({plans:state.plans, vat:state.vat})); }catch(e){}
+  }
+  function persist(){
+    saveLocal();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      if(!dbRef) return;
+      dbRef.set({ plans:state.plans, vat:state.vat, updatedAt:Date.now() })
+        .then(function(){ el("sync").textContent = "저장됨"; setTimeout(function(){ el("sync").textContent=""; },2000); })
+        .catch(function(){});
+    }, 500);
+  }
+  function applyRemote(d){
+    if(!d || !Array.isArray(d.plans) || !d.plans.length) return;
+    if(JSON.stringify({p:d.plans,v:!!d.vat}) === JSON.stringify({p:state.plans,v:!!state.vat})) return;
+    var a = document.activeElement;
+    if(a && a.closest && a.closest("#plans")) return;
+    state.plans = d.plans; state.vat = !!d.vat;
+    clamp(); buildSelects(); buildPlans(); el("vatChk").checked = state.vat; render();
+  }
+  function initDb(){
+    if(!(window.claude && typeof window.claude.use === "function")) return;
+    window.claude.use("db").then(function(db){
+      if(!db) return;
+      dbRef = db.doc("config/pricing");
+      dbRef.onSnapshot(function(s){ if(s.exists) applyRemote(s.data()); }, function(){});
+    }).catch(function(){});
+  }
+
+  function clamp(){
+    var n = state.plans.length;
+    if(state.cur >= n) state.cur = 0;
+    if(state.nxt >= n) state.nxt = n-1;
+  }
+
+  function buildSelects(){
+    ["cur","nxt"].forEach(function(id){
+      var s = el(id), keep = (id === "cur" ? state.cur : state.nxt);
+      s.innerHTML = "";
+      state.plans.forEach(function(p,i){
+        var o = document.createElement("option");
+        o.value = i;
+        o.textContent = p.name + " — 1년 " + nf(p.price) + "원";
+        s.appendChild(o);
+      });
+      s.value = String(keep);
+    });
+  }
+
+  function buildPlans(){
+    var box = el("plans");
+    box.innerHTML = "";
+    state.plans.forEach(function(p,i){
+      var row = document.createElement("div");
+      row.className = "plan";
+
+      var c1 = document.createElement("div"); c1.className = "pname";
+      var n = document.createElement("input");
+      n.type = "text"; n.className = "small"; n.value = p.name; n.setAttribute("aria-label","상품명");
+      n.addEventListener("input", function(){ state.plans[i].name = n.value; buildSelects(); render(); persist(); });
+      c1.appendChild(n); row.appendChild(c1);
+
+      var c2 = document.createElement("div"); c2.className = "pprice";
+      var pr = document.createElement("input");
+      pr.type = "text"; pr.className = "money"; pr.inputMode = "numeric";
+      pr.value = nf(p.price); pr.setAttribute("aria-label", p.name + " 1년 가격");
+      pr.addEventListener("input", function(){
+        state.plans[i].price = digits(pr.value);
+        buildSelects(); render(); persist();
+      });
+      pr.addEventListener("blur", function(){ pr.value = nf(state.plans[i].price); });
+      var w = document.createElement("span"); w.className = "won"; w.textContent = "원";
+      c2.appendChild(pr); c2.appendChild(w); row.appendChild(c2);
+
+      var c3 = document.createElement("div"); c3.className = "pnote";
+      var nt = document.createElement("input");
+      nt.type = "text"; nt.className = "small"; nt.value = p.note || "";
+      nt.placeholder = "메모"; nt.setAttribute("aria-label","메모");
+      nt.addEventListener("input", function(){ state.plans[i].note = nt.value; persist(); });
+      c3.appendChild(nt); row.appendChild(c3);
+
+      var c4 = document.createElement("div"); c4.className = "pdel";
+      if(state.plans.length > 1){
+        var x = document.createElement("button");
+        x.className = "x"; x.textContent = "✕"; x.title = "삭제";
+        x.addEventListener("click", function(){
+          state.plans.splice(i,1); clamp(); buildSelects(); buildPlans(); render(); persist();
+        });
+        c4.appendChild(x);
+      }
+      row.appendChild(c4);
+      box.appendChild(row);
+    });
+  }
+
+  function compute(){
+    var Pc = state.plans[state.cur].price;
+    var Pn = state.plans[state.nxt].price;
+    var D = Math.max(0, state.days), U = T - D;
+    var C = Pc * D / T;
+    return { Pc:Pc, Pn:Pn, D:D, U:U, C:C,
+             A:(Pn-Pc)*D/T, B:Pn-C, W:Pn-Pc, loss:Pc*U/T,
+             down:Pn<Pc, same:Pn===Pc };
+  }
+
+  function ansCard(o){
+    var d = document.createElement("section");
+    d.className = "ans" + (o.cls ? " " + o.cls : "");
+
+    var no = document.createElement("div");
+    no.className = "no"; no.textContent = o.no;
+    d.appendChild(no);
+
+    var h = document.createElement("h3");
+    h.textContent = o.title;
+    d.appendChild(h);
+
+    var big = document.createElement("p");
+    big.className = "big";
+    big.appendChild(document.createTextNode(nf(o.amount)));
+    var s = document.createElement("span");
+    s.textContent = "원";
+    big.appendChild(s);
+    d.appendChild(big);
+
+    var why = document.createElement("p");
+    why.className = "why"; why.innerHTML = o.why;
+    d.appendChild(why);
+
+    if(o.then){
+      var t = document.createElement("p");
+      t.className = "then"; t.innerHTML = o.then;
+      d.appendChild(t);
+    }
+    return d;
+  }
+
+  function render(){
+    var m = compute(), t0 = today();
+    var oldExp = addDays(t0, m.D), newExp = addDays(t0, T);
+    var cn = state.plans[state.cur].name, nn = state.plans[state.nxt].name;
+
+    el("remain").innerHTML =
+      "남은 기간 <b>" + m.D + "일</b> (약 " + mo(m.D) + "개월) · 이미 쓴 기간 <b>" + m.U + "일</b><br>" +
+      "안 쓰고 남은 " + cn + " 요금 = <b>" + won(m.C) + "</b> — 빼줄 수 있는 건 여기까지다.";
+
+    var box = el("answers");
+    box.innerHTML = "";
+
+    var aR = rnd(m.A);
+    box.appendChild(ansCard({
+      no:"①", cls: m.down ? "neg" : "",
+      title: m.down ? "만료일 그대로 두고 등급 내리기 (환불)" : "만료일 그대로 두고 등급만 올리기",
+      amount: aR,
+      why: m.down
+        ? "남은 <b>" + m.D + "일</b>치 차액을 <b>돌려주는</b> 금액이다. 만료일은 " + fmtD(oldExp) + " 그대로."
+        : "남은 <b>" + m.D + "일</b>치 차액만 받는다. 만료일은 <b>" + fmtD(oldExp) + "</b> 그대로.",
+      then: "→ " + korD(oldExp) + " 갱신 때 " + nn + " 1년 <b>" + nf(m.Pn) + "원</b>을 따로 받으면 된다."
+    }));
+
+    if(!m.down){
+      var bR = rnd(m.B);
+      box.appendChild(ansCard({
+        no:"②", cls:"b",
+        title:"오늘부터 " + nn + " 1년으로 새로 시작",
+        amount: bR,
+        why: "정가 <b>" + nf(m.Pn) + "원</b>에서 안 쓴 " + m.D + "일치 <b>" + won(m.C) + "</b>을 빼줬다. " +
+             "만료일이 <b>" + fmtD(newExp) + "</b>로 바뀐다 (" + m.U + "일 연장).",
+        then: "→ 남은 " + m.D + "일치를 안 빼줄 거면 그냥 <b>" + nf(m.Pn) + "원</b>."
+      }));
+    }
+
+    var w = el("warn");
+    if(!m.down && !m.same && m.U > 0 && m.D > 0){
+      w.hidden = false;
+      el("warnH").textContent = nf(m.W) + "원은 «계약 첫날» 가격이다";
+      el("warnA").innerHTML =
+        "<span class=\"n\">" + nf(m.Pn) + " − " + nf(m.Pc) + " = " + nf(m.W) + "원</span> 받고 <b>1년</b>을 주면, " +
+        "이미 쓴 " + m.U + "일치 " + cn + " 요금 <b class=\"n\">" + won(m.loss) + "</b>까지 깎아준 게 된다. → ②번이 맞다.";
+      el("warnB").innerHTML =
+        "<span class=\"n\">" + nf(m.W) + "원</span> 받고 <b>만료일을 그대로</b> 두면, " + m.D + "일 뒤 갱신 때 " + nf(m.Pn) + "원을 또 받게 된다. " +
+        "고객은 " + nn + "을 " + m.D + "일 쓰는 데 " + nf(m.W) + "원 낸 꼴. → ①번이 맞다.";
+    } else { w.hidden = true; }
+
+    renderDetail(m, oldExp, newExp, cn, nn);
+
+    if(!state.revTouched){
+      state.revAmt = Math.max(0, rnd(m.W));
+      el("revAmt").value = nf(state.revAmt);
+    }
+    var D2 = m.Pn > 0 ? (state.revAmt + m.C) * T / m.Pn : 0;
+    el("revOut").innerHTML =
+      "→ <b>" + D2.toFixed(0) + "일</b> (약 " + mo(D2) + "개월) · 만료일 <b>" + fmtD(addDays(t0, Math.round(D2))) + "</b>";
+    el("revEq").textContent =
+      "(받을 금액 + 안 쓴 크레딧) ÷ 하루 요금\n= (" + nf(state.revAmt) + " + " + nf(m.C,2) + ") ÷ " + nf(m.Pn/T,2) + "\n= " + D2.toFixed(1) + "일";
+
+    var L = [];
+    L.push("현재 " + cn + " (1년 " + nf(m.Pc) + "원) / 만료일 " + fmtD(oldExp) + " / 잔여 " + m.D + "일");
+    L.push("");
+    L.push("① 만료일 그대로, " + nn + "으로 등급만 상향");
+    L.push("   " + nf(aR) + "원  (남은 " + m.D + "일치 차액)");
+    L.push("   만료일 " + fmtD(oldExp) + " 유지 → 갱신 시 " + nn + " 1년 " + nf(m.Pn) + "원");
+    if(!m.down){
+      L.push("");
+      L.push("② 오늘부터 " + nn + " 1년 신규 시작");
+      L.push("   " + nf(rnd(m.B)) + "원  (정가 " + nf(m.Pn) + "원 − 미사용 " + m.D + "일치 " + nf(m.C) + "원)");
+      L.push("   만료일 " + fmtD(newExp) + " (" + m.U + "일 연장)");
+    }
+    L.push("");
+    L.push("※ 금액은 " + (state.vat ? "부가세 포함" : "부가세 별도") + "입니다.");
+    el("sumbox").textContent = L.join("\n");
+  }
+
+  function wtab(rows){
+    var s = '<div class="dscroll"><table class="wtab">';
+    rows.forEach(function(r){
+      s += '<tr' + (r[3] ? ' class="s"' : '') + '>' +
+           '<td class="k">' + r[0] + '</td>' +
+           '<td class="e">' + (r[1]||"") + '</td>' +
+           '<td class="v">' + r[2] + '</td></tr>';
+    });
+    return s + '</table></div>';
+  }
+
+  function renderDetail(m, oldExp, newExp, cn, nn){
+    var h = "";
+    var vat = function(a){
+      if(!a) return "—";
+      return state.vat
+        ? "공급가 " + nf(a/1.1) + " + 부가세 " + nf(a - a/1.1)
+        : "부가세 " + nf(a*0.1) + " 별도 → 합계 " + nf(a*1.1);
+    };
+
+    h += '<div class="dh">① 만료일 유지 · 등급만 상향</div>';
+    h += wtab([
+      ["하루당 차액", "(" + nf(m.Pn) + " − " + nf(m.Pc) + ") ÷ 365", nf((m.Pn-m.Pc)/T,2) + "원"],
+      ["× 남은 " + m.D + "일", nf((m.Pn-m.Pc)/T,2) + " × " + m.D, won2(m.A)],
+      ["청구액", "1,000원 반올림", won(rnd(m.A)), 1],
+      ["부가세", "", vat(Math.abs(rnd(m.A)))]
+    ]);
+
+    if(!m.down){
+      h += '<div class="dh">② 오늘부터 1년 신규</div>';
+      h += wtab([
+        [nn + " 1년 정가", "", nf(m.Pn) + "원"],
+        ["− 안 쓴 크레딧", nf(m.Pc) + " ÷ 365 × " + m.D, "−" + won2(m.C)],
+        ["청구액", "1,000원 반올림", won(rnd(m.B)), 1],
+        ["부가세", "", vat(rnd(m.B))]
+      ]);
+
+      h += '<div class="dh">전액 차감(오답)과의 차이</div>';
+      h += wtab([
+        ["오답", nf(m.Pn) + " − " + nf(m.Pc), nf(m.W) + "원"],
+        ["정답 ②", "", won(m.B)],
+        ["차이 = 손해", nf(m.Pc) + " ÷ 365 × " + m.U + "일", won(m.loss), 1]
+      ]);
+    }
+
+    h += '<div class="dh">공식</div>';
+    h += '<pre class="formula">' +
+      "Pc = 지금 등급 1년가      Pn = 바꿀 등급 1년가\n" +
+      "T  = 365일               D  = 남은 일수      U = 365 − D\n" +
+      "C  = Pc × D ÷ T          (안 쓴 크레딧)\n\n" +
+      "①  (Pn − Pc) × D ÷ T\n" +
+      "②  Pn − C\n" +
+      "역산  D′ = (받을금액 + C) × T ÷ Pn\n\n" +
+      "② = ① + Pn × U ÷ T        ← 남은 기간은 차액, 신규 기간은 정가\n" +
+      "② − (Pn − Pc) = Pc × U ÷ T ← 전액 차감 시 손해액" +
+      '</pre>';
+
+    el("detail").innerHTML = h;
+  }
+
+  el("cur").addEventListener("change", function(){ state.cur = +this.value; state.revTouched = false; render(); });
+  el("nxt").addEventListener("change", function(){ state.nxt = +this.value; state.revTouched = false; render(); });
+  el("exp").addEventListener("change", function(){
+    if(!this.value) return;
+    var p = this.value.split("-");
+    var d = new Date(+p[0], +p[1]-1, +p[2]); d.setHours(0,0,0,0);
+    state.days = Math.max(0, Math.round((d - today())/DAY));
+    state.revTouched = false; render();
+  });
+  el("revAmt").addEventListener("input", function(){
+    state.revTouched = true; state.revAmt = digits(this.value); render();
+  });
+  el("revAmt").addEventListener("blur", function(){ this.value = nf(state.revAmt); });
+  el("vatChk").addEventListener("change", function(){ state.vat = this.checked; render(); persist(); });
+  el("addPlan").addEventListener("click", function(){
+    state.plans.push({ name:"새 상품", price:0, note:"" });
+    buildSelects(); buildPlans(); render(); persist();
+  });
+  el("resetPlans").addEventListener("click", function(){
+    state.plans = JSON.parse(JSON.stringify(DEFAULTS.plans));
+    state.vat = DEFAULTS.vat; el("vatChk").checked = true;
+    clamp(); buildSelects(); buildPlans(); render(); persist();
+  });
+  el("copyBtn").addEventListener("click", function(){
+    var txt = el("sumbox").textContent;
+    var done = function(ok){
+      el("copyMsg").textContent = ok ? "복사됐다" : "복사 안 됨 — 위 박스를 직접 선택해서 복사";
+      setTimeout(function(){ el("copyMsg").textContent = ""; }, 2600);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ done(true); }, function(){ done(false); });
+    } else { done(false); }
+  });
+
+  var saved = loadLocal();
+  state.plans = saved ? saved.plans : JSON.parse(JSON.stringify(DEFAULTS.plans));
+  state.vat = saved ? !!saved.vat : DEFAULTS.vat;
+  clamp();
+  el("vatChk").checked = state.vat;
+  buildSelects();
+  buildPlans();
+  el("exp").value = fmtD(addDays(today(), state.days));
+  render();
+  initDb();
+})();
+</script>
+</body>
+</html>
