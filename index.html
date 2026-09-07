@@ -737,6 +737,10 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
       L.push("   "+m.D+"일분 "+nf(Math.round(m.C))+"원을 차감한 금액입니다.");
     }
     L.push("");
+    L.push(m.down
+      ? "진행을 원하시면 회신 주시기 바랍니다. 확인 후 견적서를 전달드리겠습니다."
+      : "희망하시는 방법을 알려주시면 견적서를 전달드리겠습니다.");
+    L.push("");
     L.push("※ 모든 금액은 "+vatWord()+" 기준입니다.");
     el("sumbox").textContent=L.join("\n");
   }
