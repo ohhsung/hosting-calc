@@ -52,7 +52,35 @@ input:not([type=checkbox]),select{font-family:var(--sans);font-size:15.5px;color
 input.money{font-family:var(--mono);font-size:15.5px;font-weight:600;text-align:right;
             padding:9px 29px 9px 10px;font-variant-numeric:tabular-nums}
 input.txt{font-size:14px;padding:9px 11px}
-input[type=date]{font-family:var(--mono);font-size:14.5px}
+/* 만료일 입력 — 년/월/일 분리 + 자체 달력 */
+.dfield{position:relative;display:flex;align-items:center;gap:5px}
+.dfield input.dseg{width:auto;font-family:var(--mono);font-size:15.5px;font-weight:600;
+                   text-align:center;padding:10px 4px;font-variant-numeric:tabular-nums}
+.dfield input.dy{flex:0 0 64px}
+.dfield input.dm,.dfield input.dd{flex:0 0 46px}
+.dsep{flex:0 0 auto;font-size:13px;color:var(--ink-3)}
+.dcal{flex:0 0 auto;margin-left:3px;padding:9px 12px}
+.dhint{margin:7px 0 0;font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.dhint b{color:var(--ink);font-weight:600;font-family:var(--mono)}
+
+.calpop{position:absolute;top:calc(100% + 7px);left:0;z-index:30;width:268px;
+        background:var(--paper);border:1px solid var(--ink-3);padding:13px}
+.calhd{display:flex;align-items:center;gap:4px;margin-bottom:9px}
+.calhd .t{flex:1 1 auto;text-align:center;font-size:14.5px;font-weight:700;color:var(--ink)}
+.calnav{flex:0 0 auto;padding:5px 8px;font-family:var(--mono);font-size:12px;line-height:1}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.calgrid .dow{font-size:11px;color:var(--ink-3);text-align:center;padding:3px 0 5px;font-weight:600}
+.calgrid .dow.sun{color:var(--neg)}
+.calgrid .pad{padding:0}
+.calgrid button{padding:8px 0;font-family:var(--mono);font-size:13.5px;font-weight:500;
+                border:1px solid transparent;background:transparent;color:var(--ink)}
+.calgrid button:hover{background:var(--field);border-color:var(--line)}
+.calgrid button.sun{color:var(--neg)}
+.calgrid button.today{border-color:var(--ink-3);font-weight:700}
+.calgrid button.sel,.calgrid button.sel.sun{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.calft{display:flex;justify-content:space-between;align-items:center;gap:8px;
+       margin-top:10px;padding-top:9px;border-top:1px solid var(--line-2)}
+.calft .n{font-size:12.5px;color:var(--ink-3);font-weight:500}
 select{cursor:pointer;font-weight:500}
 input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 label.f{display:flex;flex-direction:column;gap:6px;min-width:0}
@@ -245,7 +273,33 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     <div class="situ">
       <label class="f"><span>현재 이용 등급</span><select id="cur"></select></label>
       <label class="f"><span>변경할 등급</span><select id="nxt"></select></label>
-      <label class="f"><span>현재 만료일</span><input type="date" id="exp"></label>
+      <div class="f">
+        <span>현재 만료일</span>
+        <div class="dfield">
+          <input type="text" class="dseg dy" id="expY" inputmode="numeric" maxlength="4" aria-label="만료 연도">
+          <span class="dsep">년</span>
+          <input type="text" class="dseg dm" id="expM" inputmode="numeric" maxlength="2" aria-label="만료 월">
+          <span class="dsep">월</span>
+          <input type="text" class="dseg dd" id="expD" inputmode="numeric" maxlength="2" aria-label="만료 일">
+          <span class="dsep">일</span>
+          <button type="button" class="dcal" id="calBtn" aria-expanded="false">달력</button>
+          <div class="calpop" id="calPop" hidden>
+            <div class="calhd">
+              <button type="button" class="calnav" id="calPY" aria-label="이전 해">‹‹</button>
+              <button type="button" class="calnav" id="calPM" aria-label="이전 달">‹</button>
+              <div class="t" id="calTitle"></div>
+              <button type="button" class="calnav" id="calNM" aria-label="다음 달">›</button>
+              <button type="button" class="calnav" id="calNY" aria-label="다음 해">››</button>
+            </div>
+            <div class="calgrid" id="calGrid"></div>
+            <div class="calft">
+              <span class="n" id="calInfo"></span>
+              <button type="button" id="calClose">닫기</button>
+            </div>
+          </div>
+        </div>
+        <p class="dhint" id="dhint"></p>
+      </div>
     </div>
   </section>
 
@@ -485,6 +539,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     var cn=state.plans[state.cur].name, nn=state.plans[state.nxt].name;
     var aR=rnd(m.A), bR=rnd(m.B);
 
+    el("dhint").innerHTML="오늘부터 <b>"+m.D+"일</b> 남음 (약 "+mo(m.D)+"개월)";
     el("priceHead").innerHTML='1년 요금 · <b style="color:var(--accent)">'+vatWord()+'</b>';
     el("revLabel").textContent="받을 금액 ("+vatWord()+")";
     el("vatNote").innerHTML = state.vat
@@ -738,8 +793,8 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     }
     L.push("");
     L.push(m.down
-      ? "진행을 원하시면 회신 주시기 바랍니다. 확인 후 견적서를 전달드리겠습니다."
-      : "희망하시는 방법을 알려주시면 견적서를 전달드리겠습니다.");
+      ? "진행을 원하시면 회신 주시기 바랍니다. 확인 후 견적서 전달드리겠습니다."
+      : "희망하시는 방법을 알려주시면 견적서 전달드리겠습니다.");
     L.push("");
     L.push("※ 모든 금액은 "+vatWord()+" 기준입니다.");
     el("sumbox").textContent=L.join("\n");
@@ -747,12 +802,122 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
   el("cur").addEventListener("change",function(){ state.cur=+this.value; state.revTouched=false; render(); });
   el("nxt").addEventListener("change",function(){ state.nxt=+this.value; state.revTouched=false; render(); });
-  el("exp").addEventListener("change",function(){
-    if(!this.value) return;
-    var p=this.value.split("-");
-    var d=new Date(+p[0],+p[1]-1,+p[2]); d.setHours(0,0,0,0);
-    state.days=Math.max(0,Math.round((d-today())/DAY));
-    state.revTouched=false; render();
+  /* ── 만료일 입력 ── */
+  function expDate(){ return addDays(today(), state.days); }
+
+  function fillExp(){
+    var d=expDate(), a=document.activeElement;
+    el("expY").value=String(d.getFullYear());
+    el("expM").value=String(d.getMonth()+1).padStart(2,"0");
+    el("expD").value=String(d.getDate()).padStart(2,"0");
+    if(a && a.classList && a.classList.contains("dseg")) a.select();
+  }
+
+  function setExp(d){
+    d=new Date(d.getTime()); d.setHours(0,0,0,0);
+    state.days=Math.max(0, Math.round((d-today())/DAY));
+    state.revTouched=false;
+    fillExp(); render();
+  }
+
+  function commitExp(){
+    var y=parseInt(el("expY").value,10),
+        mo=parseInt(el("expM").value,10),
+        dd=parseInt(el("expD").value,10);
+    if(isNaN(y)||isNaN(mo)||isNaN(dd)||y<1900||y>2200){ fillExp(); return; }
+    mo=Math.min(12,Math.max(1,mo));
+    dd=Math.min(new Date(y,mo,0).getDate(), Math.max(1,dd));
+    setExp(new Date(y,mo-1,dd));
+  }
+
+  function wireSeg(id,len,nextId,prevId){
+    var e=el(id);
+    e.addEventListener("focus",function(){ setTimeout(function(){ e.select(); },0); });
+    e.addEventListener("input",function(){
+      var v=e.value.replace(/[^0-9]/g,"").slice(0,len);
+      if(v!==e.value) e.value=v;
+      if(v.length>=len && nextId){ el(nextId).focus(); }
+    });
+    e.addEventListener("keydown",function(ev){
+      if(ev.key==="Enter"){
+        ev.preventDefault();
+        if(nextId) el(nextId).focus(); else { commitExp(); e.blur(); }
+      } else if(ev.key==="ArrowUp"||ev.key==="ArrowDown"){
+        ev.preventDefault();
+        var step=(ev.key==="ArrowUp")?1:-1;
+        var d=expDate();
+        if(id==="expY") d.setFullYear(d.getFullYear()+step);
+        else if(id==="expM") d.setMonth(d.getMonth()+step);
+        else d.setDate(d.getDate()+step);
+        setExp(d);
+      } else if(ev.key==="Backspace" && e.value==="" && prevId){
+        ev.preventDefault(); el(prevId).focus();
+      }
+    });
+    e.addEventListener("blur",function(){
+      setTimeout(function(){
+        var a=document.activeElement;
+        if(a && a.classList && a.classList.contains("dseg")) return;
+        commitExp();
+      },0);
+    });
+  }
+  wireSeg("expY",4,"expM",null);
+  wireSeg("expM",2,"expD","expY");
+  wireSeg("expD",2,null,"expM");
+
+  /* ── 달력 ── */
+  var calY=0, calM=0;
+  function calOpen(){
+    var d=expDate(); calY=d.getFullYear(); calM=d.getMonth();
+    el("calPop").hidden=false; el("calBtn").setAttribute("aria-expanded","true");
+    calRender();
+  }
+  function calClose(){
+    el("calPop").hidden=true; el("calBtn").setAttribute("aria-expanded","false");
+  }
+  function calRender(){
+    var t0=today(), sel=expDate();
+    el("calTitle").textContent=calY+"년 "+(calM+1)+"월";
+    var first=new Date(calY,calM,1).getDay();
+    var last=new Date(calY,calM+1,0).getDate();
+    var h="";
+    ["일","월","화","수","목","금","토"].forEach(function(w,i){
+      h+='<div class="dow'+(i===0?" sun":"")+'">'+w+'</div>';
+    });
+    for(var i=0;i<first;i++) h+='<div class="pad"></div>';
+    for(var d=1;d<=last;d++){
+      var cur=new Date(calY,calM,d);
+      var cls=[];
+      if(cur.getDay()===0) cls.push("sun");
+      if(cur.getTime()===t0.getTime()) cls.push("today");
+      if(cur.getTime()===sel.getTime()) cls.push("sel");
+      h+='<button type="button" data-d="'+d+'" class="'+cls.join(" ")+'">'+d+'</button>';
+    }
+    el("calGrid").innerHTML=h;
+    var diff=Math.round((sel-t0)/DAY);
+    el("calInfo").textContent="선택 "+fmtD(sel)+" · 남은 "+Math.max(0,diff)+"일";
+  }
+  el("calBtn").addEventListener("click",function(){
+    if(el("calPop").hidden) calOpen(); else calClose();
+  });
+  el("calClose").addEventListener("click",calClose);
+  el("calPY").addEventListener("click",function(){ calY--; calRender(); });
+  el("calNY").addEventListener("click",function(){ calY++; calRender(); });
+  el("calPM").addEventListener("click",function(){ calM--; if(calM<0){calM=11;calY--;} calRender(); });
+  el("calNM").addEventListener("click",function(){ calM++; if(calM>11){calM=0;calY++;} calRender(); });
+  el("calGrid").addEventListener("click",function(ev){
+    var b=ev.target.closest("button[data-d]");
+    if(!b) return;
+    setExp(new Date(calY,calM,+b.getAttribute("data-d")));
+    calRender();
+  });
+  document.addEventListener("keydown",function(ev){
+    if(ev.key==="Escape" && !el("calPop").hidden){ calClose(); el("calBtn").focus(); }
+  });
+  document.addEventListener("click",function(ev){
+    if(el("calPop").hidden) return;
+    if(!ev.target.closest(".dfield")) calClose();
   });
   el("vatChk").addEventListener("change",function(){
     state.vat=this.checked; state.revTouched=false;
@@ -786,7 +951,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
   el("vatChk").checked=state.vat;
   buildSelects();
   buildPlans();
-  el("exp").value=fmtD(addDays(today(),state.days));
+  fillExp();
   render();
   initDb();
 })();
