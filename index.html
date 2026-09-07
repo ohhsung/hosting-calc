@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="light">
 <meta name="description" content="호스팅 등급 변경 시 받을 금액을 잔여기간 기준으로 계산한다. 가격표 직접 수정 가능.">
 <title>호스팅 등급변경 정산기</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%A7%AE%3C/text%3E%3C/svg%3E">
@@ -13,11 +13,11 @@
   img{max-width:100%}
   [hidden]{display:none !important}
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
 <style>
 :root{
   color-scheme: light;
-  --bg:#EDEFF3; --paper:#FFFFFF; --field:#F5F6FA; --fill:#EEF0F5;
+  --bg:#EDEFF3; --paper:#FFFFFF; --field:#F5F6FA; --fill:#F1F3F8;
   --ink:#000000; --ink-2:#2C3240; --ink-3:#6A7183;
   --line:#DCE0E8; --hair:#EBEEF3;
   --accent:#1B1AA0; --accent-2:#4B48D6; --accent-soft:#E9E9FA;
@@ -28,46 +28,77 @@
 }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
-.page{max-width:800px;margin:0 auto;padding:36px 18px 80px}
+.page{max-width:840px;margin:0 auto;padding:26px 16px 64px}
 
-/* 종이 한 장 — 안쪽은 전부 구분선으로만 나눈다 */
+/* 종이 한 장 — 안쪽은 구분선으로만 나눈다 (박스 중첩 금지) */
 .sheet{background:var(--paper);border:1px solid var(--line)}
-.sec{padding:26px 30px;border-top:1px solid var(--line)}
-.sec:first-child{border-top:none}
+.sec{padding:19px 22px;border-top:1px solid var(--line)}
 
-/* 헤더 */
-.mast{padding:32px 30px 26px}
-.mast h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;color:var(--ink)}
-.mast p{margin:0;color:var(--ink-2);font-size:15px;max-width:58ch}
-.mast p b{color:var(--ink);font-weight:600}
+/* ── 상단 바 ── */
+.bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+     padding:12px 22px;background:var(--fill);border-bottom:1px solid var(--line)}
+.bar .nm{font-size:13.5px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.bar .sp{flex:1 1 auto;min-width:0}
+.vt{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-2);
+    cursor:pointer;white-space:nowrap;user-select:none}
+.vt input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;padding:0;margin:0;flex:0 0 auto}
 
-/* 섹션 제목 */
-.bh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 16px}
-.bh h2{font-size:15px;font-weight:700;margin:0;color:var(--ink);letter-spacing:-.01em}
-.bh .hint{font-size:13px;color:var(--ink-3)}
+/* ── 섹션 제목 ── */
+.bh{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;margin:0 0 13px}
+.bh h2{font-size:13px;font-weight:700;margin:0;color:var(--ink);letter-spacing:-.01em}
+.bh .hint{font-size:12px;color:var(--ink-3)}
+.bh .sp{flex:1 1 auto;min-width:0}
+.bh .msg{font-size:12.5px;color:var(--accent);font-weight:500}
 
-/* 입력 */
-input:not([type=checkbox]),select{font-family:var(--sans);font-size:15.5px;color:var(--ink);background:var(--field);
-  border:1px solid var(--line);padding:10px 12px;width:100%;border-radius:0;appearance:none}
-input.money{font-family:var(--mono);font-size:15.5px;font-weight:600;text-align:right;
-            padding:9px 29px 9px 10px;font-variant-numeric:tabular-nums}
-input.txt{font-size:14px;padding:9px 11px}
-/* 만료일 입력 — 년/월/일 분리 + 자체 달력 */
+/* ── 입력 공통 ── */
+input:not([type=checkbox]),select{font-family:var(--sans);font-size:15px;color:var(--ink);
+  background:var(--field);border:1px solid var(--line);padding:9px 11px;width:100%;
+  border-radius:0;appearance:none}
+input.money{font-family:var(--mono);font-size:15px;font-weight:600;text-align:right;
+            padding:8px 27px 8px 10px;font-variant-numeric:tabular-nums}
+input.txt{font-size:14px;padding:8px 10px;background:transparent;border-color:transparent}
+input.txt:hover{background:var(--field);border-color:var(--line)}
+input.txt:focus{background:var(--field);border-color:var(--line)}
+select{cursor:pointer;font-weight:600;padding-right:26px;
+       background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);
+       background-position:calc(100% - 15px) calc(50% + 2px),calc(100% - 10px) calc(50% + 2px);
+       background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* ── 입력 2단 ── */
+.inputs{display:grid;grid-template-columns:1fr 1fr}
+.col{padding:19px 22px;min-width:0}
+.col + .col{border-left:1px solid var(--line)}
+
+/* ── 요금표 ── */
+.plan{display:grid;grid-template-columns:minmax(0,1fr) 148px 30px;gap:8px;align-items:center;padding:4px 0}
+.c-money{position:relative}
+.won{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--ink-3);font-size:13px;pointer-events:none}
+.prow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+      margin-top:11px;padding-top:11px;border-top:1px solid var(--hair)}
+.prow .sp{flex:1 1 auto;min-width:0}
+
+/* ── 현재 상황 ── */
+.situ{display:flex;flex-direction:column;gap:13px}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}
+.f > span{font-size:12.5px;color:var(--ink-3);font-weight:600}
+
+/* 만료일 — 년/월/일 분리 + 자체 달력 */
 .dfield{position:relative;display:flex;align-items:center;gap:6px;flex-wrap:wrap;row-gap:8px}
 /* input 은 flex 아이템 기본 min-width:auto 가 20자 폭(약 200px)이라 flex-basis 를 무시한다 */
-.dfield input.dseg{width:auto;min-width:0;font-family:var(--mono);font-size:15.5px;font-weight:600;
-                   text-align:center;padding:10px 4px;font-variant-numeric:tabular-nums}
-.dfield input.dy{flex:0 0 64px}
-.dfield input.dm,.dfield input.dd{flex:0 0 46px}
-.dsep{flex:0 0 auto;font-size:13px;color:var(--ink-3)}
-.dcal{flex:0 0 auto;margin-left:3px;padding:9px 12px}
-.dhint{margin:7px 0 0;font-size:13px;color:var(--ink-3);font-variant-numeric:tabular-nums}
-.dhint b{color:var(--ink);font-weight:600;font-family:var(--mono)}
+.dfield input.dseg{width:auto;min-width:0;font-family:var(--mono);font-size:15px;font-weight:600;
+                   text-align:center;padding:9px 4px;font-variant-numeric:tabular-nums}
+.dfield input.dy{flex:0 0 62px}
+.dfield input.dm,.dfield input.dd{flex:0 0 44px}
+.dsep{font-size:13px;color:var(--ink-3);flex:0 0 auto}
+.dcal{flex:0 0 auto;white-space:nowrap;margin-left:4px}
+.dnow{flex:1 1 100%;min-width:0;font-size:12.5px;color:var(--ink-2);margin:1px 0 0}
+.dnow b{font-family:var(--mono);font-weight:700;color:var(--ink)}
 
 .calpop{position:absolute;top:calc(100% + 7px);left:0;z-index:30;width:268px;max-width:calc(100vw - 40px);
         background:var(--paper);border:1px solid var(--ink-3);padding:13px}
 .calhd{display:flex;align-items:center;gap:4px;margin-bottom:9px}
-.calhd .t{flex:1 1 auto;text-align:center;font-size:14.5px;font-weight:700;color:var(--ink)}
+.calhd .t{flex:1 1 auto;text-align:center;font-size:14px;font-weight:700;color:var(--ink)}
 .calnav{flex:0 0 auto;padding:5px 8px;font-family:var(--mono);font-size:12px;line-height:1}
 .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
 .calgrid .dow{font-size:11px;color:var(--ink-3);text-align:center;padding:3px 0 5px;font-weight:600}
@@ -80,199 +111,181 @@ input.txt{font-size:14px;padding:9px 11px}
 .calgrid button.today{border-color:var(--ink-3);font-weight:700}
 .calgrid button.sel,.calgrid button.sel.sun{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
 .calft{display:flex;justify-content:space-between;align-items:center;gap:8px;
-       margin-top:10px;padding-top:9px;border-top:1px solid var(--line-2)}
+       margin-top:10px;padding-top:9px;border-top:1px solid var(--hair)}
 .calft .n{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px;line-height:1.4}
 .calft .n .cd{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.2px}
 .calft .n .cr{font-size:11.5px;color:var(--ink-3);font-weight:500}
 .calft button{flex:0 0 auto;white-space:nowrap;padding:7px 13px}
-select{cursor:pointer;font-weight:500}
-input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.f{display:flex;flex-direction:column;gap:6px;min-width:0}
-.f > span{font-size:13px;color:var(--ink-2);font-weight:600}
 
-/* 가격표 — 행 구분선만 */
-.phead,.plan{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.phead{padding-bottom:8px;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink-3);font-weight:600}
-.plan{padding:8px 0;border-bottom:1px solid var(--hair)}
-.plan:last-of-type{border-bottom:none}
-.c-name{flex:0 0 104px;min-width:0}
-.c-money{flex:0 0 148px;position:relative}
-.c-money.h{text-align:right}
-.c-note{flex:1 1 150px;min-width:0}
-.c-del{flex:0 0 30px;text-align:right}
-.won{position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--ink-3);font-size:13px;pointer-events:none}
-.vatbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px}
-.chk{display:inline-flex;align-items:center;gap:8px;font-size:15px;color:var(--ink);cursor:pointer;font-weight:600}
-.chk input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer;padding:0;margin:0;flex:0 0 auto}
-.vatnote{font-size:13px;color:var(--ink-2)}
-.vatnote b{font-family:var(--mono);color:var(--accent);font-weight:600}
+/* ── 고객 안내문 (주 출력) ── */
+.doc{background:var(--fill)}
+.sumbox{font-family:var(--sans);font-size:13.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;
+        background:var(--paper);border:1px solid var(--line);padding:16px 18px;color:var(--ink);
+        font-variant-numeric:tabular-nums;user-select:all}
 
-/* 현재 상황 */
-.situ{display:grid;grid-template-columns:1fr 1fr;gap:18px 16px}
-@media (max-width:640px){.situ{grid-template-columns:1fr}}
+/* ── 정산 방법 ── */
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.cards.one{grid-template-columns:1fr}
+.ans{border:1px solid var(--line);border-top:3px solid var(--accent);padding:17px 19px;min-width:0}
+.ans.neg{border-top-color:var(--neg)}
+.ano{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.09em}
+.ans.neg .ano{color:var(--neg)}
+.ans h3{font-size:14px;font-weight:600;margin:2px 0 11px;letter-spacing:-.01em;color:var(--ink);text-wrap:balance}
+.big{font-family:var(--mono);font-size:29px;font-weight:600;letter-spacing:-.035em;margin:0;
+     line-height:1.08;font-variant-numeric:tabular-nums;word-break:keep-all;color:var(--ink)}
+.big span{font-size:15px;font-weight:500;color:var(--ink-2);margin-left:2px}
+.ans.neg .big{color:var(--neg)}
+.sub2{margin:7px 0 0;font-size:12px;color:var(--ink-3);line-height:1.6;
+      font-variant-numeric:tabular-nums}
+.facts{margin-top:13px;padding-top:11px;border-top:1px solid var(--hair)}
+.fact{display:flex;gap:9px;font-size:12.5px;padding:3px 0;line-height:1.6}
+.fk{flex:0 0 52px;color:var(--ink-3)}
+.fv{flex:1 1 auto;min-width:0;color:var(--ink-2)}
+.fv b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 
-/* 1일 이용료 — 세로 구분선만, 박스 없음 */
-.rates{display:grid;grid-template-columns:1fr 1fr 1fr}
-@media (max-width:640px){.rates{grid-template-columns:1fr;gap:18px}}
-.rate{padding:0 20px;border-left:1px solid var(--hair);min-width:0}
-.rate:first-child{padding-left:0;border-left:none}
-.rate:last-child{padding-right:0}
-@media (max-width:640px){.rate{padding:0;border-left:none}}
-.rate .rk{font-size:12.5px;color:var(--ink-3);font-weight:600;margin:0 0 5px}
-.rate.accent .rk{color:var(--accent)}
-.rate .rv{font-family:var(--mono);font-size:26px;font-weight:600;letter-spacing:-.03em;margin:0;
-          color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.15}
+/* ── 접기 ── */
+details{border-top:1px solid var(--line)}
+summary{padding:12px 22px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--ink-2);
+        list-style:none;display:flex;align-items:baseline;gap:10px}
+summary .sh{font-size:12px;font-weight:400;color:var(--ink-3)}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+";font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink-3);
+                width:11px;text-align:center;flex:0 0 auto}
+details[open] summary::before{content:"−"}
+summary:hover{color:var(--ink);background:var(--fill)}
+details[open] > summary{color:var(--ink);border-bottom:1px solid var(--hair)}
+.dbody{padding:6px 22px 22px}
+
+/* 1일 이용료 */
+.rates{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.rate{background:var(--paper);padding:14px 15px;min-width:0}
+.rate.accent{background:var(--accent-soft)}
+.rk{margin:0;font-size:12px;color:var(--ink-3);font-weight:600}
+.rv{margin:5px 0 0;font-family:var(--mono);font-size:21px;font-weight:600;letter-spacing:-.03em;
+    color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.15}
+.rv i{font-style:normal;font-size:13px;font-weight:500;color:var(--ink-2);margin-left:2px}
 .rate.accent .rv{color:var(--accent)}
-.rate .rv i{font-style:normal;font-size:14px;font-weight:500;color:var(--ink-3);margin-left:2px}
-.rate .re{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);margin:6px 0 0;font-variant-numeric:tabular-nums}
+.re{margin:4px 0 0;font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
 
 /* 기간 막대 */
-.timeline{margin:24px 0 0;padding-top:22px;border-top:1px solid var(--hair)}
-.tbar{display:flex;height:28px;border:1px solid var(--line)}
-.tbar .seg{display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11.5px;
-           font-weight:600;white-space:nowrap;overflow:hidden;min-width:0}
-.tbar .used{background:var(--fill);color:var(--ink-2)}
-.tbar .left{background:var(--accent);color:#fff}
-.tlab{display:flex;gap:20px;margin:9px 0 0;font-size:13.5px;color:var(--ink-2)}
+.timeline{margin-top:17px}
+.tbar{display:flex;height:34px;border:1px solid var(--line)}
+.seg{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;
+     overflow:hidden;white-space:nowrap;min-width:0}
+.seg.used{background:var(--fill);color:var(--ink-3)}
+.seg.left{background:var(--accent);color:#fff}
+.tlab{display:flex;gap:16px;margin-top:9px;font-size:12.5px;color:var(--ink-3);line-height:1.6}
 .tlab > div{flex:1 1 0;min-width:0}
-.tlab b{display:block;color:var(--ink);font-weight:600;margin-bottom:1px}
-@media (max-width:640px){.tlab{flex-direction:column;gap:8px}.tlab > div{flex:1 1 auto !important}}
-
-/* 정산 방법 — 박스 없이 구분선으로만 */
-.ans{padding:24px 0 0;margin-top:22px;border-top:1px solid var(--hair)}
-.ans:first-child{padding-top:0;margin-top:0;border-top:none}
-.atop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.ano{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;flex:0 0 auto;
-     background:var(--accent);color:#fff;font-family:var(--mono);font-size:13px;font-weight:600}
-.ans.neg .ano{background:var(--neg)}
-.ans h3{font-size:17px;font-weight:700;margin:0;color:var(--ink);letter-spacing:-.015em}
-.big{font-family:var(--mono);font-size:40px;font-weight:600;letter-spacing:-.035em;margin:13px 0 0;color:var(--ink);
-     line-height:1.05;font-variant-numeric:tabular-nums;word-break:keep-all}
-.big span{font-size:20px;font-weight:500;color:var(--ink-3);margin-left:3px}
-.ans.neg .big{color:var(--neg)}
-.sub2{margin:8px 0 0;font-family:var(--mono);font-size:12.5px;color:var(--ink-3);
-      font-variant-numeric:tabular-nums;line-height:1.7}
-.facts{margin:16px 0 0;display:flex;flex-direction:column;gap:7px}
-.fact{display:flex;gap:12px;font-size:14.5px;flex-wrap:wrap}
-.fact .fk{flex:0 0 92px;color:var(--ink-3)}
-.fact .fv{flex:1 1 200px;color:var(--ink-2)}
-.fact .fv b{color:var(--ink);font-weight:600}
+.tlab b{display:block;color:var(--ink);font-weight:600;font-size:13px;margin-bottom:1px}
 
 /* 계산 과정 */
-.step{display:flex;gap:15px;padding:18px 0;border-top:1px solid var(--hair)}
-.step:first-child{padding-top:0;border-top:none}
-.step:last-child{padding-bottom:0}
-.sno{flex:0 0 24px;height:24px;display:flex;align-items:center;justify-content:center;
-     background:var(--ink);color:#fff;font-family:var(--mono);font-size:12.5px;font-weight:600}
+.step{display:flex;gap:14px;padding:15px 0;border-top:1px solid var(--hair)}
+.step:first-child{border-top:none;padding-top:4px}
+.sno{flex:0 0 24px;height:24px;background:var(--accent);color:#fff;font-family:var(--mono);
+     font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
 .sbody{flex:1 1 auto;min-width:0}
-.sbody h4{margin:0 0 8px;font-size:15.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
-.sbody p{margin:0;font-size:14.5px;color:var(--ink-2);line-height:1.75}
-.sbody p + p{margin-top:7px}
+.sbody h4{margin:0 0 7px;font-size:14.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.sbody p{margin:0 0 8px;font-size:14px;color:var(--ink-2);line-height:1.75}
+.sbody p:last-child{margin-bottom:0}
 .sbody b{color:var(--ink);font-weight:600}
-.calc{font-family:var(--mono);font-size:13px;border-left:2px solid var(--line);
-      padding:2px 0 2px 14px;margin:11px 0 0;overflow-x:auto;white-space:pre;color:var(--ink-2);
-      font-variant-numeric:tabular-nums;line-height:2}
-.calc em{font-style:normal;color:var(--accent);font-weight:600}
+.calc{font-family:var(--mono);font-size:12.5px;line-height:1.95;white-space:pre-wrap;
+      background:var(--field);padding:12px 14px;color:var(--ink-2);
+      font-variant-numeric:tabular-nums;overflow-x:auto}
+.calc em{font-style:normal;font-weight:700;color:var(--accent)}
 
-/* 자주 하는 실수 — 한 겹만 */
-.warn{padding:24px 30px;background:var(--warn-soft);border-top:1px solid var(--warn-line)}
-.warn h3{font-size:15.5px;font-weight:700;margin:0 0 10px;color:var(--warn)}
-.warn p{margin:0;font-size:14.5px;line-height:1.8;color:var(--ink)}
-.warn p + p{margin-top:8px}
+/* 자주 하는 실수 */
+.warn{background:var(--warn-soft);padding:18px 20px;border-left:3px solid var(--warn)}
+.warn h3{font-size:14.5px;font-weight:700;margin:0 0 9px;color:var(--warn)}
+.warn p{margin:0 0 8px;font-size:14px;line-height:1.75;color:var(--ink)}
 .warn b{font-weight:600}
-.n{font-family:var(--mono);font-variant-numeric:tabular-nums;font-weight:600}
-.wtable{margin:16px 0 0}
-.wr{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--warn-line);font-size:14.5px;flex-wrap:wrap}
-.wr.tot{font-weight:700}
-.wr .wk{flex:1 1 190px;color:var(--ink-2)}
+.n{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums}
+.wtable{margin:12px 0;background:var(--paper);border:1px solid var(--warn-line)}
+.wr{display:flex;gap:12px;padding:9px 13px;border-top:1px solid var(--warn-line);font-size:13px}
+.wr:first-child{border-top:none}
+.wr.tot{background:var(--warn-soft);font-weight:700}
+.wk{flex:1 1 auto;min-width:0;color:var(--ink-2)}
 .wr.tot .wk{color:var(--warn)}
-.wr .wv{flex:0 0 auto;margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
-.wend{margin:16px 0 0 !important;padding-top:14px;border-top:2px solid var(--warn);
-      font-size:15px;line-height:1.85;color:var(--ink)}
-.wend b{color:var(--warn);font-weight:700}
+.wv{flex:0 0 auto;font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
 .wr.tot .wv{color:var(--warn)}
+.wend{margin:0;font-size:14px;line-height:1.8;color:var(--ink)}
 
-/* 접이식 — 박스 없이 구분선만 */
-details{border-top:1px solid var(--line)}
-summary{padding:16px 30px;cursor:pointer;font-size:14.5px;font-weight:600;color:var(--ink-2);
-        list-style:none;display:flex;align-items:center;gap:9px}
-summary::-webkit-details-marker{display:none}
-summary::before{content:"\25B8";font-family:var(--mono);color:var(--ink-3);font-size:13px}
-details[open] summary::before{content:"\25BE"}
-summary:hover{color:var(--ink)}
-.dbody{padding:0 30px 26px}
-.dh{font-size:13.5px;font-weight:700;color:var(--ink);margin:22px 0 6px}
-.dh:first-child{margin-top:4px}
-.wtab{width:100%;border-collapse:collapse;font-size:13.5px}
+/* 상세 계산식 */
+.dh{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ink-3);
+    margin:20px 0 7px;letter-spacing:.08em;text-transform:uppercase}
+.dh:first-child{margin-top:6px}
+.dscroll{overflow-x:auto}
+.wtab{width:100%;border-collapse:collapse;font-size:13px}
 .wtab td{padding:7px 0;border-bottom:1px solid var(--hair);vertical-align:baseline}
 .wtab tr:last-child td{border-bottom:none}
-.wtab td.k{color:var(--ink-3);white-space:nowrap;padding-right:14px;width:1%}
-.wtab td.e{font-family:var(--mono);color:var(--ink-2);padding-right:14px;font-size:12.5px}
-.wtab td.v{font-family:var(--mono);text-align:right;white-space:nowrap;font-weight:600;color:var(--ink);
-           font-variant-numeric:tabular-nums}
-.wtab tr.s td{border-top:1px solid var(--line)}
+.wtab td.k{color:var(--ink-3);white-space:nowrap;padding-right:13px;width:1%}
+.wtab td.e{font-family:var(--mono);color:var(--ink-2);padding-right:13px;font-size:12px}
+.wtab td.v{font-family:var(--mono);text-align:right;white-space:nowrap;font-weight:600;
+           font-variant-numeric:tabular-nums;color:var(--ink)}
+.wtab tr.s td{border-top:1px solid var(--line);font-weight:700}
 .wtab tr.s td.v{color:var(--accent)}
-.dscroll{overflow-x:auto}
-.formula{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);line-height:2;
-         border-left:2px solid var(--line);padding:2px 0 2px 14px;overflow-x:auto;white-space:pre;margin:0}
-.rev{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-top:4px}
-.rev .f{flex:0 0 210px}
-.revout{flex:1 1 240px;font-size:15.5px;color:var(--ink-2);min-width:0}
-.revout b{color:var(--accent);font-weight:600;font-family:var(--mono);font-variant-numeric:tabular-nums}
-/* 고객 안내문 — 바탕색으로 구역 분리, 안쪽엔 테두리 없음 */
-.sec.doc{background:var(--field);border-bottom:1px solid var(--line)}
-.doc .bh{align-items:center;margin-bottom:14px}
-.doc .sp{flex:1 1 auto}
-.doc .bh button{flex:0 0 auto}
-.sumbox{font-family:var(--mono);font-size:13px;line-height:1.85;white-space:pre-wrap;word-break:break-word;
-        color:var(--ink);margin:0;font-variant-numeric:tabular-nums;user-select:all}
+.formula{font-family:var(--mono);font-size:12px;color:var(--ink-2);line-height:1.95;
+         background:var(--field);padding:13px 15px;overflow-x:auto;white-space:pre;margin:0}
 
-button{font-family:var(--sans);font-size:14px;font-weight:500;color:var(--ink);background:var(--field);
-       border:1px solid var(--line);padding:8px 15px;cursor:pointer;border-radius:0}
+/* 역산 */
+.rev{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+.rev .f{flex:0 0 190px}
+.revout{flex:1 1 220px;font-size:14.5px;color:var(--ink-2);min-width:0;padding-bottom:8px}
+.revout b{color:var(--accent);font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* 버튼 */
+button{font-family:var(--sans);font-size:13.5px;font-weight:600;color:var(--ink);background:var(--field);
+       border:1px solid var(--line);padding:8px 14px;cursor:pointer;border-radius:0}
 button:hover{background:var(--fill);border-color:var(--ink-3)}
 button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
 button.pri:hover{background:var(--accent-2);border-color:var(--accent-2)}
-button.ghost{background:transparent;border-color:transparent;color:var(--ink-3);padding:8px 4px;text-decoration:underline}
-button.ghost:hover{color:var(--ink);background:transparent}
+button.ghost{background:transparent;border-color:transparent;color:var(--ink-3);
+             padding:8px 4px;text-decoration:underline;font-weight:500}
+button.ghost:hover{color:var(--ink);background:transparent;border-color:transparent}
 button.x{padding:6px 9px;color:var(--ink-3);font-family:var(--mono);background:transparent;border-color:transparent}
-button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
-.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:16px}
-.msg{font-size:13.5px;color:var(--ink-3)}
-.foot{font-size:12.5px;color:var(--ink-3);line-height:1.9;text-align:center;margin:18px 0 0}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+button.x:hover{color:var(--neg);background:transparent;border-color:transparent}
+.msg{font-size:12.5px;color:var(--ink-3)}
+
+.foot{margin:16px 2px 0;font-size:12px;color:var(--ink-3);line-height:1.8}
+
+@media (max-width:680px){
+  .page{padding:14px 12px 48px}
+  .sec{padding:16px}
+  .bar{padding:12px 16px}
+  .inputs{grid-template-columns:1fr}
+  .col{padding:16px}
+  .col + .col{border-left:none;border-top:1px solid var(--line)}
+  .plan{grid-template-columns:minmax(0,1fr) 128px 30px}
+  .cards{grid-template-columns:1fr}
+  .rates{grid-template-columns:1fr}
+  .tlab{flex-direction:column;gap:7px}
+  summary{padding:12px 16px}
+  .dbody{padding:6px 16px 20px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
 </style>
 </head>
 <body>
 <main class="page">
 <div class="sheet">
 
-  <header class="mast">
-    <h1>호스팅 등급 변경 정산</h1>
-    <p>이용 도중에 등급을 바꿀 때 받을 금액을 계산합니다.
-       계산에 쓰는 것은 <b>남은 기간</b>뿐이고, 이미 쓴 기간은 빼주지 않습니다.</p>
-  </header>
+  <div class="bar">
+    <div class="nm">호스팅 등급변경 정산</div>
+    <div class="sp"></div>
+    <label class="vt"><input type="checkbox" id="vatChk" checked><span>부가세 포함</span></label>
+  </div>
 
-  <section class="sec">
-    <div class="bh"><h2>가격표</h2><span class="hint">값을 고치면 아래 계산이 바로 따라옵니다</span></div>
-    <div class="phead">
-      <div class="c-name">상품명</div>
-      <div class="c-money h" id="priceHead">1년 요금</div>
-      <div class="c-note">비고</div>
-      <div class="c-del"></div>
-    </div>
+  <div class="inputs">
+   <div class="col">
+    <div class="bh"><h2>요금표</h2><span class="hint" id="priceHead"></span><span class="sp"></span><span class="msg" id="sync"></span></div>
     <div id="plans"></div>
-    <div class="row">
+    <div class="prow">
       <button id="addPlan">상품 추가</button>
+      <div class="sp"></div>
       <button class="ghost" id="resetPlans">기본값으로 되돌리기</button>
-      <span class="msg" id="sync"></span>
     </div>
-    <div class="vatbar">
-      <label class="chk"><input type="checkbox" id="vatChk" checked><span>부가세 포함 가격</span></label>
-      <span class="vatnote" id="vatNote"></span>
-    </div>
-  </section>
+   </div>
 
-  <section class="sec">
+   <div class="col">
     <div class="bh"><h2>현재 상황</h2></div>
     <div class="situ">
       <label class="f"><span>현재 이용 등급</span><select id="cur"></select></label>
@@ -287,6 +300,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
           <input type="text" class="dseg dd" id="expD" inputmode="numeric" maxlength="2" size="2" aria-label="만료 일">
           <span class="dsep">일</span>
           <button type="button" class="dcal" id="calBtn" aria-expanded="false">달력</button>
+          <p class="dnow" id="dhint"></p>
           <div class="calpop" id="calPop" hidden>
             <div class="calhd">
               <button type="button" class="calnav" id="calPY" aria-label="이전 해">‹‹</button>
@@ -305,51 +319,14 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
             </div>
           </div>
         </div>
-        <p class="dhint" id="dhint"></p>
       </div>
     </div>
-  </section>
-
-  <section class="sec">
-    <div class="bh"><h2>1일 이용료</h2><span class="hint">1년 요금 ÷ 365일</span></div>
-    <div class="rates">
-      <div class="rate">
-        <p class="rk" id="rk1"></p>
-        <p class="rv" id="rv1"></p>
-        <p class="re" id="re1"></p>
-      </div>
-      <div class="rate">
-        <p class="rk" id="rk2"></p>
-        <p class="rv" id="rv2"></p>
-        <p class="re" id="re2"></p>
-      </div>
-      <div class="rate accent">
-        <p class="rk">1일 차액</p>
-        <p class="rv" id="rv3"></p>
-        <p class="re" id="re3"></p>
-      </div>
-    </div>
-    <div class="timeline">
-      <div class="tbar">
-        <div class="seg used" id="segUsed"></div>
-        <div class="seg left" id="segLeft"></div>
-      </div>
-      <div class="tlab">
-        <div id="labUsed"></div>
-        <div id="labLeft"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec">
-    <div class="bh"><h2>정산 방법</h2><span class="hint">둘 중 하나를 고르면 됩니다</span></div>
-    <div id="answers"></div>
-  </section>
+   </div>
+  </div>
 
   <section class="sec doc">
     <div class="bh">
       <h2>고객 안내문</h2>
-      <span class="hint">그대로 복사해서 보내면 됩니다</span>
       <span class="sp"></span>
       <span class="msg" id="copyMsg"></span>
       <button class="pri" id="copyBtn">복사</button>
@@ -358,27 +335,71 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
   </section>
 
   <section class="sec">
-    <div class="bh"><h2>계산 과정</h2><span class="hint">위 금액이 어떻게 나왔는지 순서대로</span></div>
-    <div id="steps"></div>
+    <div class="bh"><h2>정산 방법</h2></div>
+    <div class="cards" id="answers"></div>
   </section>
 
-  <div class="warn" id="warn" hidden>
-    <h3 id="warnH"></h3>
-    <p id="warnP1"></p>
-    <p id="warnP2"></p>
-    <div class="wtable" id="warnTable"></div>
-    <p class="wend" id="warnEnd"></p>
-  </div>
+  <details>
+    <summary>계산 과정<span class="sh">금액이 나온 순서</span></summary>
+    <div class="dbody" id="steps"></div>
+  </details>
 
   <details>
-    <summary>상세 계산식</summary>
+    <summary>1일 이용료<span class="sh">남은 기간과 차감 가능액</span></summary>
+    <div class="dbody">
+      <div class="rates">
+        <div class="rate">
+          <p class="rk" id="rk1"></p>
+          <p class="rv" id="rv1"></p>
+          <p class="re" id="re1"></p>
+        </div>
+        <div class="rate">
+          <p class="rk" id="rk2"></p>
+          <p class="rv" id="rv2"></p>
+          <p class="re" id="re2"></p>
+        </div>
+        <div class="rate accent">
+          <p class="rk">1일 차액</p>
+          <p class="rv" id="rv3"></p>
+          <p class="re" id="re3"></p>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="tbar">
+          <div class="seg used" id="segUsed"></div>
+          <div class="seg left" id="segLeft"></div>
+        </div>
+        <div class="tlab">
+          <div id="labUsed"></div>
+          <div id="labLeft"></div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary>자주 하는 실수<span class="sh">두 요금을 그냥 뺄 때</span></summary>
+    <div class="dbody">
+      <div class="warn" id="warn" hidden>
+        <h3 id="warnH"></h3>
+        <p id="warnP1"></p>
+        <p id="warnP2"></p>
+        <div class="wtable" id="warnTable"></div>
+        <p class="wend" id="warnEnd"></p>
+      </div>
+      <p class="msg" id="warnNone" hidden>지금 조건에서는 해당하는 실수가 없습니다.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>상세 계산식<span class="sh">표와 공식</span></summary>
     <div class="dbody" id="detail"></div>
   </details>
 
   <details>
-    <summary>금액 역산 — 이 금액을 받으면 며칠을 제공해야 하는가</summary>
+    <summary>금액 역산<span class="sh">이 금액을 받으면 며칠을 제공해야 하는가</span></summary>
     <div class="dbody">
-      <div class="rev" style="margin-top:16px">
+      <div class="rev">
         <label class="f"><span id="revLabel">받을 금액</span><input type="text" class="money" id="revAmt" inputmode="numeric"></label>
         <div class="revout" id="revOut"></div>
       </div>
@@ -388,8 +409,8 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
 </div>
 
-  <p class="foot">일할 계산 기준 1년 = 365일 · 청구액은 1,000원 단위로 반올림하여 표시합니다.<br>
-    청구액은 <b>남은 일수</b>와 <b>요금</b>만으로 결정되므로 계약 시작일은 필요하지 않습니다.</p>
+<p class="foot">일할 계산 기준 1년 = 365일 · 청구액은 1,000원 단위로 반올림하여 표시합니다.<br>
+  청구액은 남은 일수와 요금만으로 결정되므로 계약 시작일은 필요하지 않습니다.</p>
 
 </main>
 
@@ -400,9 +421,9 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
   // 내부 저장값(price)은 항상 «부가세 포함가». 표시만 모드에 따라 환산.
   var DEFAULT_PLANS = [
-    { name:"플러스", price:330000,  note:"하루 방문자 200~250명" },
-    { name:"확장형", price:550000,  note:"하루 방문자 500명 이상" },
-    { name:"무제한", price:1320000, note:"방문자 유입 무제한" }
+    { name:"플러스", price:330000  },
+    { name:"확장형", price:550000  },
+    { name:"무제한", price:1320000 }
   ];
 
   var state = { plans:null, vat:true, cur:0, nxt:2, days:92, revTouched:false, revAmt:0 };
@@ -502,12 +523,6 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
       var w=document.createElement("span"); w.className="won"; w.textContent="원";
       c2.appendChild(pr); c2.appendChild(w); row.appendChild(c2);
 
-      var c3=document.createElement("div"); c3.className="c-note";
-      var nt=document.createElement("input"); nt.type="text"; nt.className="txt"; nt.value=p.note||"";
-      nt.placeholder="비고"; nt.setAttribute("aria-label","비고");
-      nt.addEventListener("input",function(){ state.plans[i].note=nt.value; persist(); });
-      c3.appendChild(nt); row.appendChild(c3);
-
       var c4=document.createElement("div"); c4.className="c-del";
       if(state.plans.length>1){
         var x=document.createElement("button"); x.className="x"; x.textContent="✕";
@@ -547,11 +562,8 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     var aR=rnd(m.A), bR=rnd(m.B);
 
     el("dhint").innerHTML="오늘부터 <b>"+m.D+"일</b> 남음 (약 "+mo(m.D)+"개월)";
-    el("priceHead").innerHTML='1년 요금 · <b style="color:var(--accent)">'+vatWord()+'</b>';
+    el("priceHead").textContent="1년 요금 · "+vatWord();   // 요금표 제목 옆 힌트
     el("revLabel").textContent="받을 금액 ("+vatWord()+")";
-    el("vatNote").innerHTML = state.vat
-      ? '체크를 해제하면 10% 뺀 <b>공급가</b> 기준으로 전부 다시 계산됩니다'
-      : '현재 <b>공급가(부가세 별도)</b> 기준입니다. 실제 청구액은 여기에 10%를 더한 금액입니다';
 
     /* ── 1일 이용료 ── */
     el("rk1").textContent=cn+" 1일 이용료";
@@ -573,25 +585,26 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
     /* ── 정산 방법 ── */
     var box=el("answers"); box.innerHTML="";
+    box.className = "cards" + (m.down ? " one" : "");
     box.appendChild(ansCard({
-      no:"1", cls:m.down?"neg":"",
+      no:"1안", cls:m.down?"neg":"",
       title:m.down?"만료일 그대로 두고 등급 내리기 (환불)":"만료일 그대로 두고 등급만 올리기",
       amount:aR, exact:m.A,
       facts:[
         ["계산", "1일 차액 <b>"+nf(Math.abs(m.rd),2)+"원</b> × 남은 <b>"+m.D+"일</b>"],
         ["만료일", "<b>"+fmtD(oldExp)+"</b> · 변동 없음"],
-        ["다음 갱신", fullD(oldExp)+"에 "+nn+" 1년 <b>"+nf(m.dPn)+"원</b> 청구"]
+        ["다음 갱신", fullD(oldExp)+"에 "+nn+" 1년 <b>"+nf(m.dPn)+"원</b>"]
       ]
     }));
     if(!m.down){
       box.appendChild(ansCard({
-        no:"2", cls:"b",
+        no:"2안", cls:"b",
         title:"오늘부터 "+nn+" 1년 새로 시작",
         amount:bR, exact:m.B,
         facts:[
           ["계산", nn+" 1년 <b>"+nf(m.dPn)+"원</b> − 안 쓴 "+m.D+"일치 <b>"+nf(m.C)+"원</b>"],
-          ["만료일", "<b>"+fmtD(newExp)+"</b> · 기존 대비 "+extend+"일 연장"],
-          ["다음 갱신", fullD(newExp)+"에 "+nn+" 1년 <b>"+nf(m.dPn)+"원</b> 청구"]
+          ["만료일", "<b>"+fmtD(newExp)+"</b> · "+extend+"일 연장"],
+          ["다음 갱신", fullD(newExp)+"에 "+nn+" 1년 <b>"+nf(m.dPn)+"원</b>"]
         ]
       }));
     }
@@ -614,21 +627,18 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
   function ansCard(o){
     var d=document.createElement("section");
     d.className="ans"+(o.cls?" "+o.cls:"");
-    var top=document.createElement("div"); top.className="atop";
     var no=document.createElement("div"); no.className="ano"; no.textContent=o.no;
     var h=document.createElement("h3"); h.textContent=o.title;
-    top.appendChild(no); top.appendChild(h); d.appendChild(top);
+    d.appendChild(no); d.appendChild(h);
 
     var big=document.createElement("p"); big.className="big";
     big.appendChild(document.createTextNode(nf(o.amount)));
     var s=document.createElement("span"); s.textContent="원"; big.appendChild(s);
     d.appendChild(big);
 
-    var lines=[];
-    if(Math.round(o.exact)!==o.amount) lines.push("반올림 전 "+nf(o.exact,2)+"원");
-    var sp=vatSplit(o.amount); if(sp) lines.push(sp);
-    if(lines.length){
-      var s2=document.createElement("p"); s2.className="sub2"; s2.innerHTML=lines.join("<br>");
+    var sp=vatSplit(o.amount);
+    if(sp){
+      var s2=document.createElement("p"); s2.className="sub2"; s2.textContent=sp;
       d.appendChild(s2);
     }
 
@@ -643,7 +653,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     return d;
   }
 
-  /* ── 계산 과정 (쉬운 설명) ── */
+  /* ── 계산 과정 ── */
   function renderSteps(m, oldExp, newExp, extend, cn, nn, aR, bR){
     var S=[];
 
@@ -679,10 +689,10 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
   /* ── 자주 하는 실수 ── */
   function renderWarn(m, cn, nn, aR, bR){
-    var w=el("warn");
-    if(m.down || m.same || m.U<=0 || m.D<=0){ w.hidden=true; return; }
-    w.hidden=false;
-    el("warnH").textContent="자주 하는 실수 — 두 요금을 그냥 빼는 경우";
+    var w=el("warn"), none=el("warnNone");
+    if(m.down || m.same || m.U<=0 || m.D<=0){ w.hidden=true; none.hidden=false; return; }
+    w.hidden=false; none.hidden=true;
+    el("warnH").textContent="두 요금을 그냥 빼는 경우";
     el("warnP1").innerHTML=
       '<span class="n">'+nf(m.dPn)+" − "+nf(m.dPc)+" = "+nf(m.W)+"원</span>";
     el("warnP2").innerHTML=
@@ -707,7 +717,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
   function renderDetail(m, newExp, extend, cn, nn, aR, bR){
     var h="";
-    h+='<div class="dh">가격표 ('+vatWord()+' 기준)</div>';
+    h+='<div class="dh">요금표 ('+vatWord()+' 기준)</div>';
     h+=wtab(state.plans.map(function(p){
       return [esc(p.name),
         state.vat ? (nf(Math.round(p.price/VAT))+" × 1.1") : (nf(p.price)+" ÷ 1.1"),
@@ -809,6 +819,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
   el("cur").addEventListener("change",function(){ state.cur=+this.value; state.revTouched=false; render(); });
   el("nxt").addEventListener("change",function(){ state.nxt=+this.value; state.revTouched=false; render(); });
+
   /* ── 만료일 입력 ── */
   function expDate(){ return addDays(today(), state.days); }
 
@@ -935,6 +946,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     if(el("calPop").hidden) return;
     if(!ev.target.closest(".dfield")) calClose();
   });
+
   el("vatChk").addEventListener("change",function(){
     state.vat=this.checked; state.revTouched=false;
     buildSelects(); buildPlans(); render(); persist();
@@ -942,7 +954,7 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
   el("revAmt").addEventListener("input",function(){ state.revTouched=true; state.revAmt=digits(this.value); render(); });
   el("revAmt").addEventListener("blur",function(){ this.value=nf(state.revAmt); });
   el("addPlan").addEventListener("click",function(){
-    state.plans.push({name:"새 상품",price:0,note:""});
+    state.plans.push({name:"새 상품",price:0});
     buildSelects(); buildPlans(); render(); persist();
   });
   el("resetPlans").addEventListener("click",function(){
