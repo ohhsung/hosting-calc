@@ -156,7 +156,6 @@ label.f > span{font-size:13px;color:var(--ink-2);font-weight:600}
 .wr.tot .wk{color:var(--warn)}
 .wr .wv{flex:0 0 auto;margin-left:auto;font-family:var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
 .wr.tot .wv{color:var(--warn)}
-.wr .wn{flex:1 1 100%;font-size:13px;color:var(--ink-3);margin-top:1px}
 
 /* 접이식 — 박스 없이 구분선만 */
 details{border-top:1px solid var(--line)}
@@ -210,12 +209,12 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
 
   <header class="mast">
     <h1>호스팅 등급 변경 정산</h1>
-    <p>이용 기간 중간에 등급을 변경할 때 받아야 할 금액을 계산합니다.
-       정산 대상은 <b>남은 기간</b>이며, 이미 사용한 기간은 차감하지 않습니다.</p>
+    <p>이용 도중에 등급을 바꿀 때 받을 금액을 계산합니다.
+       계산에 쓰는 것은 <b>남은 기간</b>뿐이고, 이미 쓴 기간은 빼주지 않습니다.</p>
   </header>
 
   <section class="sec">
-    <div class="bh"><h2>가격표</h2><span class="hint">값을 수정하면 아래 계산에 즉시 반영됩니다</span></div>
+    <div class="bh"><h2>가격표</h2><span class="hint">값을 고치면 아래 계산이 바로 따라옵니다</span></div>
     <div class="phead">
       <div class="c-name">상품명</div>
       <div class="c-money h" id="priceHead">1년 요금</div>
@@ -275,12 +274,21 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
   </section>
 
   <section class="sec">
-    <div class="bh"><h2>정산 방법</h2><span class="hint">아래 두 가지 중 하나를 선택합니다</span></div>
+    <div class="bh"><h2>고객 안내문</h2><span class="hint">그대로 복사해서 보내면 됩니다</span></div>
+    <div class="sumbox" id="sumbox"></div>
+    <div class="row">
+      <button class="pri" id="copyBtn">복사</button>
+      <span class="msg" id="copyMsg"></span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="bh"><h2>정산 방법</h2><span class="hint">둘 중 하나를 고르면 됩니다</span></div>
     <div id="answers"></div>
   </section>
 
   <section class="sec">
-    <div class="bh"><h2>계산 과정</h2><span class="hint">위 금액이 나온 순서입니다</span></div>
+    <div class="bh"><h2>계산 과정</h2><span class="hint">위 금액이 어떻게 나왔는지 순서대로</span></div>
     <div id="steps"></div>
   </section>
 
@@ -304,17 +312,6 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
         <div class="revout" id="revOut"></div>
       </div>
       <p class="formula" id="revEq" style="margin-top:15px"></p>
-    </div>
-  </details>
-
-  <details>
-    <summary>고객 안내문</summary>
-    <div class="dbody">
-      <div class="sumbox" id="sumbox" style="margin-top:16px"></div>
-      <div class="row">
-        <button class="pri" id="copyBtn">복사</button>
-        <span class="msg" id="copyMsg"></span>
-      </div>
     </div>
   </details>
 
@@ -499,17 +496,17 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     el("segLeft").style.flex=m.D+" 1 0";
     el("segUsed").textContent=m.U>0?(m.U+"일 사용"):"";
     el("segLeft").textContent=m.D>0?(m.D+"일 남음"):"";
-    el("labUsed").innerHTML="<b>이미 사용한 "+m.U+"일</b>서비스 제공이 끝난 기간입니다. 정산 대상이 아닙니다.";
-    el("labLeft").innerHTML="<b>남은 "+m.D+"일 · "+nf(m.C)+"원</b>아직 제공하지 않은 기간입니다. 정산은 이 범위에서만 이루어집니다.";
+    el("labUsed").innerHTML="<b>이미 쓴 "+m.U+"일</b>서비스가 이미 나간 기간이라 빼줄 것이 없습니다.";
+    el("labLeft").innerHTML="<b>남은 "+m.D+"일 · "+nf(m.C)+"원</b>아직 안 쓴 기간입니다. 빼줄 수 있는 건 이 금액뿐입니다.";
 
     /* ── 정산 방법 ── */
     var box=el("answers"); box.innerHTML="";
     box.appendChild(ansCard({
       no:"1", cls:m.down?"neg":"",
-      title:m.down?"만료일 유지 · 등급 하향 (환불)":"만료일 유지 · 등급만 상향",
+      title:m.down?"만료일 그대로 두고 등급 내리기 (환불)":"만료일 그대로 두고 등급만 올리기",
       amount:aR, exact:m.A,
       facts:[
-        ["산출 근거", "1일 차액 <b>"+nf(Math.abs(m.rd),2)+"원</b> × 남은 <b>"+m.D+"일</b>"],
+        ["계산", "1일 차액 <b>"+nf(Math.abs(m.rd),2)+"원</b> × 남은 <b>"+m.D+"일</b>"],
         ["만료일", "<b>"+fmtD(oldExp)+"</b> · 변동 없음"],
         ["다음 갱신", fullD(oldExp)+"에 "+nn+" 1년 <b>"+nf(m.dPn)+"원</b> 청구"]
       ]
@@ -517,10 +514,10 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     if(!m.down){
       box.appendChild(ansCard({
         no:"2", cls:"b",
-        title:"오늘부터 "+nn+" 1년 신규 시작",
+        title:"오늘부터 "+nn+" 1년 새로 시작",
         amount:bR, exact:m.B,
         facts:[
-          ["산출 근거", nn+" 1년 <b>"+nf(m.dPn)+"원</b> − 남은 "+m.D+"일분 <b>"+nf(m.C)+"원</b>"],
+          ["계산", nn+" 1년 <b>"+nf(m.dPn)+"원</b> − 안 쓴 "+m.D+"일치 <b>"+nf(m.C)+"원</b>"],
           ["만료일", "<b>"+fmtD(newExp)+"</b> · 기존 대비 "+extend+"일 연장"],
           ["다음 갱신", fullD(newExp)+"에 "+nn+" 1년 <b>"+nf(m.dPn)+"원</b> 청구"]
         ]
@@ -579,28 +576,28 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     var S=[];
 
     S.push(["1","1년 요금을 1일 이용료로 바꿉니다",
-      "<p>1년 단위 금액은 중간 정산에 바로 쓸 수 없습니다. 365로 나누어 <b>하루에 얼마짜리 서비스인지</b>부터 구합니다.</p>" +
+      "<p>1년 요금은 중간에 등급을 바꿀 때 그대로 쓸 수 없습니다. 365로 나눠서 <b>하루에 얼마인지</b>부터 구합니다.</p>" +
       '<div class="calc">'+esc(cn)+"   "+nf(m.dPc)+" ÷ 365 = <em>"+nf(m.rc,2)+"원</em> / 1일\n"+
       esc(nn)+"   "+nf(m.dPn)+" ÷ 365 = <em>"+nf(m.rn,2)+"원</em> / 1일\n"+
       "차액                     = <em>"+nf(m.rd,2)+"원</em> / 1일</div>"]);
 
-    S.push(["2","남은 기간을 확인합니다",
-      "<p>계약 1년(365일) 중 <b>"+m.U+"일은 이미 사용</b>했고 <b>"+m.D+"일이 남아</b> 있습니다. "+
+    S.push(["2","남은 날짜를 셉니다",
+      "<p>1년 365일 중 <b>"+m.U+"일은 이미 썼고</b> <b>"+m.D+"일이 남았습니다</b>. "+
       "만료일은 "+fullD(oldExp)+"입니다.</p>"]);
 
-    S.push(["3","이미 사용한 기간은 정산에서 제외합니다",
-      "<p>이미 지난 "+m.U+"일은 서비스 제공이 끝난 기간입니다. 되돌리거나 상위 등급으로 바꿔 드릴 수 없으므로 <b>차감 대상이 아닙니다</b>.</p>"+
-      "<p>정산할 수 있는 것은 아직 제공하지 않은 <b>남은 "+m.D+"일분</b>뿐이며, 금액으로는 다음과 같습니다.</p>"+
-      '<div class="calc">'+esc(cn)+" 남은 "+m.D+"일분\n"+
+    S.push(["3","이미 쓴 날짜는 빼지 않습니다",
+      "<p>지나간 "+m.U+"일은 서비스가 이미 나간 기간입니다. 되돌릴 수 없으니 <b>빼줄 것이 없습니다</b>.</p>"+
+      "<p>빼줄 수 있는 건 아직 안 쓴 <b>"+m.D+"일치</b>뿐입니다. 금액으로 보면 이렇습니다.</p>"+
+      '<div class="calc">'+esc(cn)+" 안 쓴 "+m.D+"일치\n"+
       nf(m.dPc)+" ÷ 365 × "+m.D+"일 = <em>"+nf(m.C,2)+"원</em></div>"]);
 
-    S.push(["4","두 가지 방법 중에서 정합니다",
-      "<p><b>1안 — 만료일을 그대로 두는 경우</b><br>"+
-      "남은 "+m.D+"일에 대해 1일 차액만 받습니다. 만료일은 "+fmtD(oldExp)+" 그대로이고, 그날 정상 요금으로 갱신합니다.</p>"+
+    S.push(["4","둘 중 하나를 고릅니다",
+      "<p><b>1안 — 만료일을 그대로 두기</b><br>"+
+      "남은 "+m.D+"일 동안 <b>하루 차액만</b> 받습니다. 만료일이 "+fmtD(oldExp)+" 그대로라서, 그날 원래 요금으로 갱신하면 됩니다.</p>"+
       '<div class="calc">('+nf(m.dPn)+" − "+nf(m.dPc)+") ÷ 365 × "+m.D+"일 = "+nf(m.A,2)+"원\n→ 1,000원 반올림 <em>"+nf(aR)+"원</em></div>"+
       (m.down ? "" :
-      "<p style=\"margin-top:12px\"><b>2안 — 오늘부터 1년을 새로 시작하는 경우</b><br>"+
-      nn+" 1년 정가에서, 아직 제공하지 않은 "+cn+" "+m.D+"일분을 빼 드립니다. 만료일은 "+fmtD(newExp)+"로 "+extend+"일 늘어납니다.</p>"+
+      "<p style=\"margin-top:12px\"><b>2안 — 오늘부터 1년 새로 시작</b><br>"+
+      nn+" 1년 요금에서 <b>안 쓴 "+cn+" "+m.D+"일치</b>를 빼 드립니다. 만료일은 "+fmtD(newExp)+"로 "+extend+"일 늘어납니다.</p>"+
       '<div class="calc">'+nf(m.dPn)+" − "+nf(m.C,2)+" = "+nf(m.B,2)+"원\n→ 1,000원 반올림 <em>"+nf(bR)+"원</em></div>")]);
 
     el("steps").innerHTML = S.map(function(s){
@@ -613,20 +610,16 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
     var w=el("warn");
     if(m.down || m.same || m.U<=0 || m.D<=0){ w.hidden=true; return; }
     w.hidden=false;
-    el("warnH").textContent="자주 하는 실수 — 두 요금을 그대로 빼는 경우";
+    el("warnH").textContent="자주 하는 실수 — 두 요금을 그냥 빼는 경우";
     el("warnP1").innerHTML=
       '<span class="n">'+nf(m.dPn)+" − "+nf(m.dPc)+" = "+nf(m.W)+"원</span>";
     el("warnP2").innerHTML=
-      "여기서 뺀 <span class=\"n\">"+nf(m.dPc)+"원</span>은 "+cn+" <b>365일분</b> 요금입니다. "+
-      "그러나 이 고객에게 남은 것은 <b>"+m.D+"일분("+nf(m.C)+"원)</b>뿐입니다. "+
-      "이미 제공이 끝난 "+m.U+"일분까지 차감한 금액이 됩니다.";
+      "여기서 뺀 <span class=\"n\">"+nf(m.dPc)+"원</span>은 "+cn+" <b>1년치</b>입니다. "+
+      "그런데 안 쓰고 남은 건 <b>"+m.D+"일치</b>뿐입니다.";
     el("warnTable").innerHTML=
-      '<div class="wr"><div class="wk">차감한 금액 ('+cn+' 365일분)</div><div class="wv">'+nf(m.dPc)+'원</div></div>'+
-      '<div class="wr"><div class="wk">차감 가능한 금액 (남은 '+m.D+'일분)</div><div class="wv">'+nf(m.C)+'원</div></div>'+
-      '<div class="wr tot"><div class="wk">차이</div><div class="wv">'+nf(Math.round(m.loss))+'원</div>'+
-        '<div class="wn">이미 제공이 끝난 '+m.U+'일분 요금까지 차감된 금액입니다.</div></div>'+
-      '<div class="wr"><div class="wk">1년을 제공하는 경우 받아야 할 금액</div><div class="wv">'+nf(bR)+'원 <span style="color:var(--ink-3)">(2안)</span></div></div>'+
-      '<div class="wr"><div class="wk">만료일을 유지하는 경우 받아야 할 금액</div><div class="wv">'+nf(aR)+'원 <span style="color:var(--ink-3)">(1안)</span></div></div>';
+      '<div class="wr"><div class="wk">뺀 금액 · '+cn+' 1년치</div><div class="wv">'+nf(m.dPc)+'원</div></div>'+
+      '<div class="wr"><div class="wk">뺄 수 있는 금액 · 안 쓴 '+m.D+'일치</div><div class="wv">'+nf(m.C)+'원</div></div>'+
+      '<div class="wr tot"><div class="wk">차이 · 이미 쓴 '+m.U+'일치</div><div class="wv">'+nf(Math.round(m.loss))+'원</div></div>';
   }
 
   function wtab(rows){
@@ -673,8 +666,8 @@ button.x:hover{color:var(--neg);border-color:var(--neg);background:transparent}
       h+='<div class="dh">두 요금을 그대로 뺀 경우와의 차이</div>';
       h+=wtab([
         ["그대로 뺀 금액", nf(m.dPn)+" − "+nf(m.dPc), nf(m.W)+"원"],
-        ["2안 정산액", "", nf(m.B,2)+"원"],
-        ["차이", nf(m.rc,2)+" × "+m.U+"일", nf(m.loss,2)+"원", 1]
+        ["2안 청구액", nf(m.B,2)+" → 1,000원 반올림", nf(bR)+"원"],
+        ["차이 · 이미 쓴 "+m.U+"일치", nf(bR)+" − "+nf(m.W), nf(bR-m.W)+"원", 1]
       ]);
     }
 
